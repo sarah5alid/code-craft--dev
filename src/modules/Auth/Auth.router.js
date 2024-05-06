@@ -14,7 +14,7 @@ router.post(
 
 router.get("/verify-email", authController.verifyEmail);
 
-router.get(
+router.post(
   "/signIn",
   validationMiddleware(authSchemas.signInSchema),
   authController.signIn
