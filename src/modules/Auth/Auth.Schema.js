@@ -22,7 +22,7 @@ export const signUpSchema = {
 
       gender: joi.string().valid("male", "female").required(),
       phonenumber: joi.string().pattern(new RegExp("^[0-9]{11}$")),
-      role: joi.valid("user", "instructor", "admin", "superAdmin").required(),
+      // role: joi.valid("user", "instructor", "admin", "superAdmin").required(),
     })
     .with("password", "confirmpassword"),
 };
