@@ -45,7 +45,6 @@ const userSchema = new Schema(
         type: String,
         default:
           "Code%20Craft/user/default/Windows_10_Default_Profile_Picture.svg_iqhkng",
-        unique: true,
       },
     },
 
