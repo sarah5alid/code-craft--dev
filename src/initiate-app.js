@@ -1,7 +1,10 @@
 import { connectDB } from "../DB/connection.js";
 import * as routers from "./modules/index.router.js";
+import cors from "cors";
+
 export const initiateApp = async (app, express) => {
   const port = process.env.port;
+  app.use(cors());
   app.use(express.json());
   await connectDB();
 
