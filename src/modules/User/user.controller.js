@@ -6,6 +6,13 @@ import generateUniqurString from "../../utils/generate-unique-string.js";
 import cloudinary from "../../utils/cloudinary.js";
 
 //==============update password===================//
+const getUserProfilePicFolderPath = (folderId) => {
+  if (folderId === null || folderId === undefined) {
+    throw new Error(`Invalid folder id "${folderId}".`);
+  }
+
+  return `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${folderId}`;
+}
 
 export const updatePassword = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
@@ -82,13 +89,14 @@ export const updateProfileData = asyncHandler(async (req, res, next) => {
 export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
 
-  const { folderId } = req.authUser;
+  const user = await userModel.findById(id);
+  const { folderId } = user;
 
   //upload image on cloudinary
   const { public_id, secure_url } = await cloudinary.uploader.upload(
     req.file.path,
     {
-      folder: `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${folderId}`,
+      folder: getUserProfilePicFolderPath(folderId),
       resource_type: "image",
     }
   );
@@ -107,7 +115,7 @@ export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
   if (!User) {
     const data = await cloudinary().uploader.destroy(User.profile_pic.id);
     await cloudinary.api.delete_folder(
-      `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${folderId}`
+      getUserProfilePicFolderPath(folderId)
     );
     console.log(data);
     return next(new Error("Error while uploading photo", { cause: 500 }));
@@ -152,12 +160,13 @@ export const updateProfile_Pic = asyncHandler(async (req, res, next) => {
 export const deleteProfile_Pic = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
   const user = await userModel.findById(id);
+  const { folderId } = user;
 
   await cloudinary.uploader.destroy(user.profile_pic.id);
-
   await cloudinary.api.delete_folder(
-    `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${user.folderId}`
+    getUserProfilePicFolderPath(folderId)
   );
+
   return res
     .status(200)
     .json({ success: true, message: "profile picture removed " });
