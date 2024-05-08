@@ -167,6 +167,9 @@ export const deleteProfile_Pic = asyncHandler(async (req, res, next) => {
     getUserProfilePicFolderPath(folderId)
   ).catch(console.log);
 
+  user.profile_pic = { url: undefined, id: undefined };
+  await user.save();
+
   return res
     .status(200)
     .json({ success: true, message: "profile picture removed " });
