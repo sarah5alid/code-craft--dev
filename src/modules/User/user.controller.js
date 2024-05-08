@@ -165,7 +165,7 @@ export const deleteProfile_Pic = asyncHandler(async (req, res, next) => {
   await cloudinary.uploader.destroy(user.profile_pic.id);
   await cloudinary.api.delete_folder(
     getUserProfilePicFolderPath(folderId)
-  );
+  ).catch(console.log);
 
   return res
     .status(200)
