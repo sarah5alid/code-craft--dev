@@ -81,7 +81,7 @@ export const updateProfileData = asyncHandler(async (req, res, next) => {
 export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
 
-  const folderId = generateUniqurString(4);
+  const { folderId } = req.authUser;
 
   //upload image on cloudinary
   const { public_id, secure_url } = await cloudinary.uploader.upload(
@@ -117,7 +117,7 @@ export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
     message: "profile picture uploaded !",
     photo: User.profile_pic,
   });
-});
+}); 
 
 //=============================update Profile pic==================
 
@@ -170,11 +170,12 @@ export const getProfile = asyncHandler(async (req, res, next) => {
   const user = await userModel
     .findById(id)
     .select(
-      "firstName lastName phoneNumber Bio contactInfo education experience -_id"
-    );
+      "firstName lastName phoneNumber Bio contactInfo education experience -_id profile_pic"
+  );
+
   if (!user) {
     return next(new Error("Not found!", { cause: 404 }));
   }
 
-  return res.status(200).json({ success: true ,profile:user });
+  return res.status(200).json({ success: true, profile: user });
 });
