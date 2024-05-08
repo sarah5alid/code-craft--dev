@@ -69,6 +69,7 @@ export const updateProfileData = asyncHandler(async (req, res, next) => {
     experience: User.experience,
     education: User.education,
     contactinfo: User.contactInfo,
+    role: User.role,
   };
 
   return res
@@ -170,7 +171,7 @@ export const getProfile = asyncHandler(async (req, res, next) => {
   const user = await userModel
     .findById(id)
     .select(
-      "firstName lastName phoneNumber Bio contactInfo education experience -_id profile_pic"
+      "firstName lastName phoneNumber Bio contactInfo education experience -_id profile_pic role"
   );
 
   if (!user) {
