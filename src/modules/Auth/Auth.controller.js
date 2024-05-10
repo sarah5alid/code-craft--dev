@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import sendEmailService from "../../services/send-email-service.js";
 
 import randomstring from "randomstring";
+import generateUniqurString from "../../utils/generate-unique-string.js";
 
 export const signUp = asyncHandler(async (req, res, next) => {
   // 1- destructure the required data from the request body
@@ -69,10 +70,9 @@ export const signUp = asyncHandler(async (req, res, next) => {
     email,
     password: hashedPassword,
     age,
-
     phoneNumber,
     gender,
-
+    folderId: generateUniqurString(4),
     //  test:req.body.test
   });
 
