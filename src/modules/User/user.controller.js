@@ -28,7 +28,7 @@ export const updatePassword = asyncHandler(async (req, res, next) => {
 
   return res
     .status(200)
-    .json({ success: true, message: "password updated successfully" });
+    .json({ success: true, message: "password updated successfully" ,userId:id});
 });
 
 //=========================  updated profile data===================================
@@ -61,6 +61,7 @@ export const updateProfileData = asyncHandler(async (req, res, next) => {
   await User.save();
 
   const updatedUser = {
+    userId: id,
     profile_pic: User.profile_pic,
     firstname: User.firstName,
     lastname: User.lastName,
@@ -81,13 +82,11 @@ export const updateProfileData = asyncHandler(async (req, res, next) => {
 export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
 
-  const folderId = generateUniqurString(4);
-
   //upload image on cloudinary
   const { public_id, secure_url } = await cloudinary.uploader.upload(
     req.file.path,
     {
-      folder: `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${folderId}`,
+      folder: `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${id}`,
       resource_type: "image",
     }
   );
@@ -116,6 +115,7 @@ export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
     success: true,
     message: "profile picture uploaded !",
     photo: User.profile_pic,
+    userId: User._id,
   });
 });
 
@@ -137,13 +137,12 @@ export const updateProfile_Pic = asyncHandler(async (req, res, next) => {
     user.profile_pic = { url: secure_url, id: public_id };
     await user.save();
   }
-  return res
-    .status(200)
-    .json({
-      success: true,
-      message: "profile picture updated !",
-      photo: user.profile_pic,
-    });
+  return res.status(200).json({
+    success: true,
+    message: "profile picture updated !",
+    photo: user.profile_pic,
+    userId: user._id,
+  });
 });
 
 //=================================delete profile pic====================
@@ -159,7 +158,7 @@ export const deleteProfile_Pic = asyncHandler(async (req, res, next) => {
   );
   return res
     .status(200)
-    .json({ success: true, message: "profile picture removed " });
+    .json({ success: true, message: "profile picture removed " ,userId:user._id});
 });
 
 //==============================get profile data=================
@@ -170,11 +169,23 @@ export const getProfile = asyncHandler(async (req, res, next) => {
   const user = await userModel
     .findById(id)
     .select(
-      "firstName lastName phoneNumber Bio contactInfo education experience -_id"
+      " _id firstName lastName phoneNumber Bio contactInfo education experience profile_pic"
     );
   if (!user) {
     return next(new Error("Not found!", { cause: 404 }));
   }
 
-  return res.status(200).json({ success: true ,profile:user });
+  const User = {
+    userId: id,
+    profile_pic: user.profile_pic,
+    firstname: user.firstName,
+    lastname: user.lastName,
+    phonenumber: user.phoneNumber,
+    bio: user.Bio,
+    experience: user.experience,
+    education: user.education,
+    contactinfo: user.contactInfo,
+  };
+
+  return res.status(200).json({ success: true, profile: User });
 });

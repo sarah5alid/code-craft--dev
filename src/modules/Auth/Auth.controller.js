@@ -21,21 +21,26 @@ export const signUp = asyncHandler(async (req, res, next) => {
     phoneNumber,
   } = req.body;
 
-  //check password
-  if (password !== confirmpassword) {
-    return next(new Error("password must match"));
+  // 2- check if the user already exists in the database using the email
+
+  const checkUser = await user.findOne({ email, isDeleted: true });
+
+  if (checkUser) {
+    return  res.status(409).json({
+      message: "Email used in signnig up before,do you want to eactive it",
+      email: email,
+    });
   }
 
-  // 2- check if the user already exists in the database using the email
-  const isEmailDuplicated = await user.findOne({ email, isDeleted: false });
-  if (isEmailDuplicated) {
-    return next(
-      new Error("Email already exists,Please try another email", { cause: 409 })
-    );
+  const checkuser = await user.findOne({ email });
+
+  if (checkuser) {
+    return next(new Error("Email already exits , try Log In", { cause: 409 }));
   }
+
   // 3- send confirmation email to the user
   const usertoken = jwt.sign({ email }, process.env.SECRET_KEY, {
-    expiresIn: "7d",
+    expiresIn: "3d",
   });
 
   const isEmailSent = await sendEmailService({
@@ -43,7 +48,7 @@ export const signUp = asyncHandler(async (req, res, next) => {
     subject: "Email Verification",
     message: `
         <h2>please clich on this link to verfiy your email</h2>
-        <a href="${req.protocol}://${req.headers.host}/auth/verify-email?token=${usertoken}">Verify Email</a>
+        <a href="${req.protocol}://${req.headers.host}/Auth/verify-email?token=${usertoken}">Verify Email</a>
         `,
   });
   console.log(req.protocol, req.headers.host);
@@ -110,11 +115,19 @@ export const signIn = asyncHandler(async (req, res, next) => {
   const User = await user.findOne({
     email,
     isEmailVerified: true,
-    isDeleted: false,
   });
   if (!User) {
     return next(new Error("Invalid login credentails", { cause: 404 }));
   }
+
+  if (User.isDeleted == true) {
+    return next(
+      new Error("Your account is soft deleted you cannot Log In", {
+        cause: 404,
+      })
+    );
+  }
+
   // check password
   const isPasswordValid = bcrypt.compareSync(password, User.password);
   if (!isPasswordValid) {
@@ -148,11 +161,13 @@ export const forgetCode = asyncHandler(async (req, res, next) => {
   const User = await user.findOne({ email: req.body.email });
 
   if (!User) {
-    return next(new Error("invalid Email!"));
+    return next(new Error("invalid Email!", { cause: 400 }));
   }
 
   if (!User.isEmailVerified) {
-    return next(new Error("your account not activated,activate it first"));
+    return next(
+      new Error("Your account not activated,activate it first", { cause: 400 })
+    );
   }
 
   //  gnerate code
@@ -169,7 +184,7 @@ export const forgetCode = asyncHandler(async (req, res, next) => {
     to: User.email,
     subject: "reset password!",
     //text: "hello from signUp",
-    message: `<div>${code}</div>`,
+    message: `<div> ${code}</div>`,
   });
 
   if (!sendMessage) {
@@ -181,41 +196,68 @@ export const forgetCode = asyncHandler(async (req, res, next) => {
   return res.status(200).json({
     success: true,
     message: " code sent! ",
+    email: req.body.email,
   });
 });
-//===============================reset password==========================
-//TO DO
-export const resetPassword = asyncHandler(async (req, res, next) => {
+//===============================check code==========================
+
+export const checkCode = asyncHandler(async (req, res, next) => {
   let User = await user.findOne({
-    email: req.body.email,
-    forgetCode: req.body,
+    email: req.query.email,
   });
 
-  if (!User)
-    return next(new Error("you already reset your password ,try log in"));
+  if (!User) return next(new Error("Invalid email", { cause: 404 }));
 
-  await User.findOneAndUpdate(
-    { email: req.body.email },
+  //check code
+  if (User.forgetCode !== req.body.forgetCode || User.forgetCode == null) {
+    return next(new Error("Invalid Code", { cause: 400 }));
+  }
+
+  await user.findOneAndUpdate(
+    { email: req.params.email },
     { forgetCode: null },
     { new: true }
   );
+
+  return res.status(200).json({
+    success: true,
+    message: "Code checked, you can reset your password",
+  });
+});
+
+//=========================reset pass===================
+
+export const resetPassword = asyncHandler(async (req, res, next) => {
+  const User = await user.findOne({ email: req.query.email });
+
+  if (!User) {
+    return next(new Error("Invalid email", { cause: 404 }));
+  }
 
   if (User) {
     const match = bcrypt.compareSync(req.body.password, User.password);
 
     if (match) {
-      return next(new Error("password used many times,enter new one!"));
+      return next(
+        new Error("Password used many times,enter new one!", { cause: 400 })
+      );
     }
   }
+  if (req.body.password !== req.body.confirmpassword) {
+    return next(
+      new Error("Confirm Password must match with password", { cause: 400 })
+    );
+  }
 
-  user.password = bcrypt.hashSync(req.body.password, +process.env.SALT_ROUNDS);
+  User.password = bcrypt.hashSync(req.body.password, +process.env.SALT_ROUNDS);
 
-  await user.save();
+  await User.save();
 
   return res
     .status(200)
-    .json({ success: true, message: "password Updated !,try login" });
+    .json({ success: true, message: "Password reset successfully,try log In" });
 });
+
 //================================logOut===================================
 export const logOut = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
@@ -239,10 +281,63 @@ export const deleteAccount = asyncHandler(async (req, res, next) => {
     return next(new Error("user not found", { cause: 400 }));
   }
 
+  if (User.coursesUploaded.length > 0) {
+    return next(
+      new Error(
+        "you cannot delete account because you upload courses,contact with our support"
+      )
+    );
+  }
+
   User.isDeleted = true;
   User.accessToken.isValid = false;
   await User.save();
-  return res
-    .status(200)
-    .json({ success: true, message: "user deleted success" });
+
+  return res.status(200).json({ success: true, message: "User deleted !" });
+});
+
+//=================Reactivation==================
+
+export const sendReactiveEmail = asyncHandler(async (req, res, next) => {
+  const { email } = req.query;
+
+  const usertoken = jwt.sign({ email }, process.env.SECRET_KEY, {
+    expiresIn: "3d",
+  });
+
+  const isEmailSent = await sendEmailService({
+    to: email,
+    subject: "Email Reactivation",
+    message: `
+          <h2>please clich on this link to reactive your email</h2>
+          <a href="${req.protocol}://${req.headers.host}/Auth/reactive-email?token=${usertoken}">Reactive Email</a>
+          `,
+  });
+  if (!isEmailSent) {
+    return next(
+      new Error("Email is not sent, please try again later", { cause: 500 })
+    );
+  }
+
+  return res.status(200).json({ success: true, message: "Email sent!" });
+});
+
+//=================mark us not deleted
+
+export const reactiveEmail = asyncHandler(async (req, res, next) => {
+  const { token } = req.query;
+  const decodedData = jwt.verify(token, process.env.SECRET_KEY);
+  // get uset by email , isEmailVerified = false
+  const User = await user.findOneAndDelete({
+    email: decodedData.email,
+    isDeleted: true,
+  });
+  if (!User) {
+    return next(new Error("User not found", { cause: 404 }));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Email Reactivated successfully, please try to sign In",
+  });
 });
