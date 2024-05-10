@@ -177,11 +177,23 @@ export const getProfile = asyncHandler(async (req, res, next) => {
   const user = await userModel
     .findById(id)
     .select(
-      "firstName lastName phoneNumber Bio contactInfo education experience -_id"
+      "firstName lastName phoneNumber Bio contactInfo education experience _id"
     );
   if (!user) {
     return next(new Error("Not found!", { cause: 404 }));
   }
 
-  return res.status(200).json({ success: true, profile: user });
+  const User = {
+    userId: id,
+    profile_pic: user.profile_pic,
+    firstname: user.firstName,
+    lastname: user.lastName,
+    phonenumber: user.phoneNumber,
+    bio: user.Bio,
+    experience: user.experience,
+    education: user.education,
+    contactinfo: user.contactInfo,
+  };
+
+  return res.status(200).json({ success: true, profile: User });
 });
