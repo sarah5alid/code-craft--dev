@@ -3,7 +3,7 @@ import { Schema, Types } from "mongoose";
 
 const courseContentSchema = new Schema(
   {
-    title: { type: String, required: true },
+    title: { type: String, required: true, trim: true },
     slug: { type: String, required: true },
 
     video: {

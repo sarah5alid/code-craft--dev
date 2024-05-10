@@ -25,6 +25,10 @@ export const authuntication = (accessRoles) => {
 
     const findUser = await user.findById(payload.id, "userName email role "); // loggdInUser ROle
     if (!findUser) return next(Error("please signUp first", { cause: 404 }));
+
+    if (findUser.accessToken.isValid == false) {
+      return next(new Error("Session Expired !", { statusCode: 401 }));
+    }
     // auhtorization
     if (!accessRoles.includes(findUser.role))
       return next(new Error("unauthorized", { cause: 401 }));

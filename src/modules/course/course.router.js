@@ -5,7 +5,7 @@ import { multerMiddleHost } from "../../middlewares/multer-middleware.js";
 import { allowedExtensions } from "../../utils/allowed-extentions.js";
 import * as courseController from "./course.controller.js";
 import * as courseSchema from "./course.Schemas.js";
-import { approveCourse } from "./approve-course.js";
+
 import { validationMiddleware } from "../../middlewares/validation-middleware.js";
 const router = Router();
 
@@ -28,12 +28,6 @@ router.delete(
   authuntication(endPointsRoles.DELETE_COURSE),
 
   courseController.deleteCourse
-);
-
-router.patch(
-  "/approvement/:courseId",
-  authuntication(endPointsRoles.APPROVE_COURSE),
-  approveCourse
 );
 
 export default router;

@@ -12,7 +12,7 @@ const getUserProfilePicFolderPath = (folderId) => {
   }
 
   return `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${folderId}`;
-}
+};
 
 export const updatePassword = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
@@ -33,9 +33,11 @@ export const updatePassword = asyncHandler(async (req, res, next) => {
   User.password = hashedPassword;
   await User.save();
 
-  return res
-    .status(200)
-    .json({ success: true, message: "password updated successfully" ,userId:id});
+  return res.status(200).json({
+    success: true,
+    message: "password updated successfully",
+    userId: id,
+  });
 });
 
 //=========================  updated profile data===================================
@@ -90,13 +92,11 @@ export const updateProfileData = asyncHandler(async (req, res, next) => {
 export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
 
-  const folderId = generateUniqurString(4);
-
   //upload image on cloudinary
   const { public_id, secure_url } = await cloudinary.uploader.upload(
     req.file.path,
     {
-      folder: `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${folderId}`,
+      folder: `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${id}`,
       resource_type: "image",
     }
   );
@@ -107,16 +107,13 @@ export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
     id,
     {
       profile_pic: { url: secure_url, id: public_id },
-      folderId: folderId,
     },
     { new: true }
   );
 
   if (!User) {
-    const data = await cloudinary().uploader.destroy(User.profile_pic.id);
-    await cloudinary.api.delete_folder(
-      getUserProfilePicFolderPath(folderId)
-    );
+    const data = await cloudinary.uploader.destroy(User.profile_pic.id);
+    await cloudinary.api.delete_folder(getUserProfilePicFolderPath(folderId));
     console.log(data);
     return next(new Error("Error while uploading photo", { cause: 500 }));
   }
@@ -127,7 +124,7 @@ export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
     photo: User.profile_pic,
     userId: User._id,
   });
-}); 
+});
 
 //=============================update Profile pic==================
 
@@ -160,19 +157,16 @@ export const updateProfile_Pic = asyncHandler(async (req, res, next) => {
 export const deleteProfile_Pic = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
   const user = await userModel.findById(id);
-  const { folderId } = user;
-
   await cloudinary.uploader.destroy(user.profile_pic.id);
-  await cloudinary.api.delete_folder(
-    getUserProfilePicFolderPath(folderId)
-  ).catch(console.log);
-
+  await cloudinary.api.delete_folder(getUserProfilePicFolderPath(folderId));
   user.profile_pic = { url: undefined, id: undefined };
   await user.save();
 
-  return res
-    .status(200)
-    .json({ success: true, message: "profile picture removed " ,userId:user._id});
+  return res.status(200).json({
+    success: true,
+    message: "profile picture removed ",
+    userId: user._id,
+  });
 });
 
 //==============================get profile data=================
@@ -189,5 +183,5 @@ export const getProfile = asyncHandler(async (req, res, next) => {
     return next(new Error("Not found!", { cause: 404 }));
   }
 
-  return res.status(200).json({ success: true ,profile:user });
+  return res.status(200).json({ success: true, profile: user });
 });

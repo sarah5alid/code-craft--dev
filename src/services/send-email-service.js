@@ -1,5 +1,3 @@
-
-
 /// send email service
 
 import nodemailer from "nodemailer";

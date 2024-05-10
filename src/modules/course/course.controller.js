@@ -36,22 +36,6 @@ export const uploadCourseInfo = asyncHandler(async (req, res, next) => {
   // if discount
 
   const appliedPrice = basePrice - basePrice * ((discount || 0) / 100);
-  //files
-
-  if (!req.file) return next({ cause: 400, message: "Image is required" });
-
-  const folderId = generateUniqurString(4);
-
-  //upload image on cloudinary
-  const { public_id, secure_url } = await cloudinary.uploader.upload(
-    req.file.path,
-    {
-      folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${checkcategory._id}/${addedBy}/${folderId}`,
-      resource_type: "image",
-    }
-  );
-
-  req.folder = `${process.env.CLOUD_FOLDER_NAME}/Categories/${checkcategory._id}/${addedBy}/${folderId}`;
 
   const CourseInfo = {
     courseName: name,
@@ -61,8 +45,7 @@ export const uploadCourseInfo = asyncHandler(async (req, res, next) => {
     prerequisites,
     basePrice,
     appliedPrice,
-    image: { id: public_id, url: secure_url },
-    folderId,
+
     categoryId,
     addedBy,
   };
@@ -77,6 +60,26 @@ export const uploadCourseInfo = asyncHandler(async (req, res, next) => {
     changeRole.role = "instructor";
     await changeRole.save();
   }
+
+  changeRole.coursesUploaded.push(newCourse._id);
+  await changeRole.save();
+  //files
+
+  if (!req.file) return next({ cause: 400, message: "Image is required" });
+
+  //upload image on cloudinary
+  const { public_id, secure_url } = await cloudinary.uploader.upload(
+    req.file.path,
+    {
+      folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${checkcategory._id}/${addedBy}/${newCourse._id}`,
+      resource_type: "image",
+    }
+  );
+
+  req.folder = `${process.env.CLOUD_FOLDER_NAME}/Categories/${checkcategory._id}/${addedBy}/${newCourse._id}`;
+  newCourse.image.id = public_id;
+  newCourse.image.url = secure_url;
+  await newCourse.save();
 
   return res.status(200).json({
     success: true,
@@ -140,7 +143,7 @@ export const updateCourseInfo = async (req, res, next) => {
     const newPulicId = oldPublicId.split(`${course.folderId}/`)[1];
 
     const { secure_url } = await cloudinary().uploader.upload(req.file.path, {
-      folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${course.categoryId}/${addedBy}/${course.folderId}`,
+      folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${course.categoryId}/${addedBy}/${course._id}`,
 
       public_id: newPulicId,
     });

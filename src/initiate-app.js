@@ -11,9 +11,9 @@ export const initiateApp = async (app, express) => {
   app.use("/Auth", routers.authRouter);
   app.use("/User", routers.userRouter);
   app.use("/Category", routers.categoryRouter);
-  // app.use("/Course", routers.courseRouter);
-  // app.use("/Course-content", routers.courseContentRouter);
-  // app.use("/get-courses",routers.getCoursesRouter)
+  app.use("/Course", routers.courseRouter);
+  app.use("/Course-content", routers.courseContentRouter);
+  app.use("/get-courses", routers.getCoursesRouter);
   app.all("*", (req, res, next) => {
     return next(new Error("page not found"));
   });
@@ -27,8 +27,6 @@ export const initiateApp = async (app, express) => {
     }),
       next();
   });
-
-
 
   app.listen(port, () => {
     console.log(`server is running on port ${port}....`);

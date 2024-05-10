@@ -26,6 +26,34 @@ router.patch(
   authController.forgetCode
 );
 
-router.put("/logOut", authuntication(Object.values(systemRoles)), authController.logOut);
-router.put("/deleteAccount",authuntication(Object.values(systemRoles)), authController.deleteAccount)
+router.patch(
+  "/checkCode/",
+  validationMiddleware(authSchemas.checkCodeSchema),
+  authController.checkCode
+);
+router.patch(
+  "/resetPassword/",
+  validationMiddleware(authSchemas.resetPasswordSchema),
+  authController.resetPassword
+);
+
+router.put(
+  "/logOut",
+  authuntication(Object.values(systemRoles)),
+  authController.logOut
+);
+router.put(
+  "/deleteAccount",
+  authuntication(Object.values(systemRoles)),
+  authController.deleteAccount
+);
+
+router.get(
+  "/reactivation",
+  validationMiddleware(authSchemas.reactivationSchema),
+  authController.sendReactiveEmail
+);
+
+router.get("/reactive-email", authController.reactiveEmail);
+
 export default router;

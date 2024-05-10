@@ -52,8 +52,8 @@
 //     if (this.query.keyword) {
 //       this.mongooseQuery.find({
 //         $or: [
-//           { title: { $regex: req.query.keyword } },
-//           { description: { $regex: req.query.keyword } },
+//           { title: { $regex: this.query.keyword } },
+//           { description: { $regex: this.query.keyword } },
 //         ],
 //       });
 //     }
@@ -92,14 +92,14 @@
 
 export class APIFeatures {
   // mongooseQuery  = model.find()
-  // query = req.query
+  // query = this.query
   constructor(query, mongooseQuery) {
     this.query = query; // we can remove this variable becaue we didn't use it
     this.mongooseQuery = mongooseQuery;
   }
 
   pagination() {
-    if (req.query.page <= 0) this.query.page = 1;
+    if (this.query.page <= 0) this.query.page = 1;
     let pageNumber = this.query.page * 1 || 1;
     let limit = 4;
     let skip = (pageNumber - 1) * limit;
@@ -128,9 +128,9 @@ export class APIFeatures {
     if (this.query.keyword) {
       this.mongooseQuery.find({
         $or: [
-          { title: { $regex: req.query.keyword } },
-          { description: { $regex: req.query.keyword } },
-        ],
+          { courseName: { $regex: this.query.keyword } },
+          { desc: { $regex: this.query.keyword } },
+        ]
       });
     }
     return this;
@@ -144,7 +144,7 @@ export class APIFeatures {
         });
     
         filterObj = JSON.stringify(filterObj);
-        filterObj = filterObj.replace(/ (gt|gte|lt|ltein|nin|eq|ne|regex)/g, (match) => "$" + match);
+        filterObj = filterObj.replace(/ (gt|gte|lt|lte|in|nin|eq|ne|regex)/g, (match) => "$" + match);
     
         filterObj = JSON.parse(filterObj);
     

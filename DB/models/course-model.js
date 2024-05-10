@@ -16,7 +16,6 @@ const courseSchema = new Schema(
 
     prerequisites: { type: String, required: true },
 
-    folderId: { type: String, required: true, unique: true },
     //=================numbers====//
 
     courseDuration: { type: Number, required: true, default: 0 },
@@ -53,17 +52,5 @@ const courseSchema = new Schema(
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
-
-courseSchema.virtual("category", {
-  ref: "Category", // The model to use for populating
-  localField: "categoryId", // The field in the current document (Course) to match against
-  foreignField: "_id", // The field in the referenced document (CourseContent) to match against
-});
-
-courseSchema.virtual("content", {
-  ref: "CourseContent",
-  localField: "videos",
-  foreignField: "_id",
-});
 
 export const Course = mongoose.model("Course", courseSchema);

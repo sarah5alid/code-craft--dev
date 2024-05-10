@@ -48,7 +48,6 @@ const userSchema = new Schema(
       },
     },
 
-    folderId: { type: String, unique: true },
 
     gender: { type: String, enum: ["male", "female"] },
     role: {
@@ -83,6 +82,8 @@ const userSchema = new Schema(
     },
 
     recentlyViewedCourses: [{ type: Types.ObjectId, ref: "Course" }],
+
+    coursesUploaded: [{ type: Types.ObjectId, ref: "Course" }],
   },
   { timestamps: true }
 );
@@ -92,7 +93,7 @@ const code = randomstring.generate({
   charset: "numeric",
 });
 userSchema.pre("save", function (next) {
-  this.userName = this.firstName.toLowerCase() + code;
+  this.userName = this.firstName.toLowerCase()+ code;
 
   next();
 });
