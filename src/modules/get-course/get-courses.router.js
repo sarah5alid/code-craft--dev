@@ -12,7 +12,11 @@ import { systemRoles } from "../../utils/system-roles.js";
 
 const router = Router();
 
-router.get("/coursePreview/:courseId",authuntication(Object.values(systemRoles)), getCCountroller.getCoursePreview);
+router.get(
+  "/coursePreview/:courseId",
+  authuntication(Object.values(systemRoles)),
+  getCCountroller.getCoursePreview
+);
 
 router.patch(
   "/updateRecentlyViewed/:courseId",
@@ -25,5 +29,7 @@ router.get(
 
   getCCountroller.getRecentlyViewedCourses
 );
+
+router.get("/getAllCourses", getCCountroller.getAllCourses);
 
 export default router;
