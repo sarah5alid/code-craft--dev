@@ -101,7 +101,7 @@ export class APIFeatures {
   pagination() {
     if (this.query.page <= 0) this.query.page = 1;
     let pageNumber = this.query.page * 1 || 1;
-    let limit = 4;
+    let limit = 8;
     let skip = (pageNumber - 1) * limit;
     this.pageNumber = pageNumber;
     this.mongooseQuery.skip(skip).limit(limit);
@@ -130,28 +130,34 @@ export class APIFeatures {
         $or: [
           { courseName: { $regex: this.query.keyword } },
           { desc: { $regex: this.query.keyword } },
-        ]
+          { firstName: { $regex: this.query.keyword } },
+          { lastName: { $regex: this.query.keyword } },
+        ],
       });
     }
     return this;
   }
   filter() {
-        let filterObj = { ...this.query };
-    
-        let excludedFields = ["page", "sort", "fields", "keyword"];
-        excludedFields.forEach((val) => {
-          delete filterObj[val];
-        });
-    
-        filterObj = JSON.stringify(filterObj);
-        filterObj = filterObj.replace(/ (gt|gte|lt|lte|in|nin|eq|ne|regex)/g, (match) => "$" + match);
-    
-        filterObj = JSON.parse(filterObj);
-    
-        this.mongooseQuery.find(filterObj);
-    
-        return this;
-      }
+    console.log("filter");
+    let filterObj = { ...this.query };
+
+    let excludedFields = ["page", "sort", "fields", "keyword"];
+    excludedFields.forEach((val) => {
+      delete filterObj[val];
+    });
+
+    filterObj = JSON.stringify(filterObj);
+    filterObj = filterObj.replace(
+      /(gt|gte|lt|lte|in|nin|eq|ne|regex)/g,
+      (match) => "$" + match
+    );
+
+    filterObj = JSON.parse(filterObj);
+    console.log(filterObj);
+    this.mongooseQuery.find(filterObj);
+
+    return this;
+  }
 
   fields() {
     if (this.query.fields) {

@@ -7,11 +7,11 @@ const courseContentSchema = new Schema(
     slug: { type: String, required: true },
 
     video: {
-      id: { type: String, unique: true, required: true },
-      url: { type: String, required: true },
+      id: { type: String, unique: true },
+      url: { type: String },
     },
 
-    duration: { type: Number, required: true },
+    duration: { type: Number },
     isCompleted: { type: Boolean, default: false },
 
     course: { type: Types.ObjectId, ref: "Course", required: true },

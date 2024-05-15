@@ -23,10 +23,11 @@ export const authuntication = (accessRoles) => {
       return next(new Error("invalid payload", { cause: 400 }));
     }
 
-    const findUser = await user.findById(payload.id, "userName email role "); // loggdInUser ROle
+    const findUser = await user.findById(payload.id, "userName email role accessToken"); // loggdInUser ROle
     if (!findUser) return next(Error("please signUp first", { cause: 404 }));
-
-    if (findUser.accessToken.isValid == false) {
+    console.log(findUser.accessToken.isValid)
+    if (!findUser.accessToken.isValid) {
+      
       return next(new Error("Session Expired !", { statusCode: 401 }));
     }
     // auhtorization

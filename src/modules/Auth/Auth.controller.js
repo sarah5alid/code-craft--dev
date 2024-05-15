@@ -6,7 +6,6 @@ import bcrypt from "bcryptjs";
 import sendEmailService from "../../services/send-email-service.js";
 
 import randomstring from "randomstring";
-import generateUniqurString from "../../utils/generate-unique-string.js";
 
 export const signUp = asyncHandler(async (req, res, next) => {
   // 1- destructure the required data from the request body
@@ -27,7 +26,7 @@ export const signUp = asyncHandler(async (req, res, next) => {
   const checkUser = await user.findOne({ email, isDeleted: true });
 
   if (checkUser) {
-    return  res.status(409).json({
+    return res.status(409).json({
       message: "Email used in signnig up before,do you want to eactive it",
       email: email,
     });
@@ -70,9 +69,10 @@ export const signUp = asyncHandler(async (req, res, next) => {
     email,
     password: hashedPassword,
     age,
+
     phoneNumber,
     gender,
-    folderId: generateUniqurString(4),
+
     //  test:req.body.test
   });
 
@@ -123,6 +123,14 @@ export const signIn = asyncHandler(async (req, res, next) => {
   if (User.isDeleted == true) {
     return next(
       new Error("Your account is soft deleted you cannot Log In", {
+        cause: 404,
+      })
+    );
+  }
+
+  if (User.isPinned == true) {
+    return next(
+      new Error("Your account is pinned you cannot Log In", {
         cause: 404,
       })
     );

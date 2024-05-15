@@ -53,4 +53,8 @@ const courseSchema = new Schema(
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
+// userSchema.virtual('coursesUploadedCount').get(function() {
+//   return this.coursesUploaded.length;
+// });
+
 export const Course = mongoose.model("Course", courseSchema);

@@ -13,7 +13,11 @@ export const initiateApp = async (app, express) => {
   app.use("/Category", routers.categoryRouter);
   app.use("/Course", routers.courseRouter);
   app.use("/Course-content", routers.courseContentRouter);
-  app.use("/get-courses", routers.getCoursesRouter);
+
+  app.use("/Coupon", routers.couponRouter);
+  //app.use("/get-courses", routers.getCoursesRouter);
+
+  app.use("/Admin", routers.adminPriviligesRouter);
   app.all("*", (req, res, next) => {
     return next(new Error("page not found"));
   });

@@ -8,30 +8,12 @@ import {
 } from "./approve-course.js";
 import { authuntication } from "../../middlewares/auth-middleware.js";
 import { endPointsRoles } from "./get-endpints-roles.js";
+import { systemRoles } from "../../utils/system-roles.js";
 
 const router = Router();
 
-router.get(
-  "/gat-non-approved-admins",
-  authuntication(endPointsRoles.APPROVE_COURSE),
-  getNon_ApprovedCoursesby_Admins
-);
+router.get("/coursePreview/:courseId",authuntication(Object.values(systemRoles)), getCCountroller.getCoursePreview);
 
-router.patch(
-  "/approvement/:courseId",
-  authuntication(endPointsRoles.APPROVE_COURSE),
-  approveCourse
-);
-
-router.get("/getCoursesByUsers", getCCountroller.getAllCoursesByUsers);
-
-router.get("/coursePreview/:courseId", getCCountroller.getCoursePreview);
-
-router.get(
-  "/instructorCourses",
-  authuntication(endPointsRoles.GET_INS_COURSE),
-  getCCountroller.getInstructorCourses
-);
 router.patch(
   "/updateRecentlyViewed/:courseId",
   authuntication(endPointsRoles.GET_VIEWED),

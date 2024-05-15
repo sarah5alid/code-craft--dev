@@ -71,12 +71,12 @@ export const uploadCourseInfo = asyncHandler(async (req, res, next) => {
   const { public_id, secure_url } = await cloudinary.uploader.upload(
     req.file.path,
     {
-      folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${checkcategory._id}/${addedBy}/${newCourse._id}`,
+      folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${checkcategory._id}/${addedBy}/${newCourse._id}/Images`,
       resource_type: "image",
     }
   );
 
-  req.folder = `${process.env.CLOUD_FOLDER_NAME}/Categories/${checkcategory._id}/${addedBy}/${newCourse._id}`;
+  req.folder = `${process.env.CLOUD_FOLDER_NAME}/Categories/${checkcategory._id}/${addedBy}/${newCourse._id}/Images`;
   newCourse.image.id = public_id;
   newCourse.image.url = secure_url;
   await newCourse.save();
@@ -140,10 +140,10 @@ export const updateCourseInfo = async (req, res, next) => {
   if (oldPublicId) {
     if (!req.file) return next({ cause: 400, message: "Image is required" });
 
-    const newPulicId = oldPublicId.split(`${course.folderId}/`)[1];
+    const newPulicId = oldPublicId.split('Images/')[1];
 
     const { secure_url } = await cloudinary().uploader.upload(req.file.path, {
-      folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${course.categoryId}/${addedBy}/${course._id}`,
+      folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${course.categoryId}/${addedBy}/${course._id}/Images`,
 
       public_id: newPulicId,
     });
@@ -164,34 +164,34 @@ export const updateCourseInfo = async (req, res, next) => {
 };
 //=============================delete course===============
 
-export const deleteCourse = asyncHandler(async (req, res, next) => {
-  const { courseId } = req.params;
+// export const deleteCourse = asyncHandler(async (req, res, next) => {
+//   const { courseId } = req.params;
 
-  const checkCourse = await Course.findById(courseId);
+//   const checkCourse = await Course.findById(courseId);
 
-  if (!checkCourse)
-    return next(
-      new Error("course you try to delete not found", { cause: 404 })
-    );
+//   if (!checkCourse)
+//     return next(
+//       new Error("course you try to delete not found", { cause: 404 })
+//     );
 
-  if (
-    req.authuser._id.toString() !== checkCourse.addedBy.toString() ||
-    req.authuser._id.toString() !== systemRoles.SUPER_ADMIN
-  ) {
-    return next(
-      new Error("you are not Authorized to delete this course", {
-        cause: 400,
-      })
-    );
-  }
+//   if (
+//     req.authuser._id.toString() !== checkCourse.addedBy.toString() ||
+//     req.authuser._id.toString() !== systemRoles.SUPER_ADMIN
+//   ) {
+//     return next(
+//       new Error("you are not Authorized to delete this course", {
+//         cause: 400,
+//       })
+//     );
+//   }
 
-  const deletedCourse = await Course.findByIdAndDelete(courseId);
+//   const deletedCourse = await Course.findByIdAndDelete(courseId);
 
-  if (!deletedCourse)
-    return next(new Error("error while deleting"), { cause: 500 });
-  //ASK
+//   if (!deletedCourse)
+//     return next(new Error("error while deleting"), { cause: 500 });
+//   //ASK
 
-  await CourseContent.deleteMany({ course: courseId });
+//   await CourseContent.deleteMany({ course: courseId });
 
-  return res.status(204).json({ success: true, message: "Course deleted !" });
-});
+//   return res.status(204).json({ success: true, message: "Course deleted !" });
+// });

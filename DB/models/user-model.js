@@ -48,7 +48,6 @@ const userSchema = new Schema(
       },
     },
 
-
     gender: { type: String, enum: ["male", "female"] },
     role: {
       type: String,
@@ -81,11 +80,20 @@ const userSchema = new Schema(
       isValid: { type: Boolean, default: true },
     },
 
+    isPinned: {
+      type: Boolean,
+      default: false,
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
     recentlyViewedCourses: [{ type: Types.ObjectId, ref: "Course" }],
 
     coursesUploaded: [{ type: Types.ObjectId, ref: "Course" }],
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 const code = randomstring.generate({
@@ -93,8 +101,13 @@ const code = randomstring.generate({
   charset: "numeric",
 });
 userSchema.pre("save", function (next) {
-  this.userName = this.firstName.toLowerCase()+ code;
+  this.userName = this.firstName.toLowerCase() + code;
 
   next();
+});
+
+
+userSchema.virtual("coursesUploadedCount").get(function () {
+  return this.coursesUploaded.length;
 });
 export default mongoose.models.User || mongoose.model("User", userSchema);

@@ -23,11 +23,11 @@ router.put(
   courseController.updateCourseInfo
 );
 
-router.delete(
-  "/deleteCourse/:courseId",
-  authuntication(endPointsRoles.DELETE_COURSE),
+// router.delete(
+//   "/deleteCourse/:courseId",
+//   authuntication(endPointsRoles.DELETE_COURSE),
 
-  courseController.deleteCourse
-);
+//   courseController.deleteCourse
+// );
 
 export default router;

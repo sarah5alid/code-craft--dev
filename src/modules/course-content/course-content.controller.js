@@ -36,6 +36,15 @@ export const uploadVideos = asyncHandler(async (req, res, next) => {
 
   const slug = slugify(title, "-");
 
+  const content = {
+    title,
+    slug,
+
+    course: courseId,
+  };
+
+  const video = await CourseContent.create(content);
+
   if (!req.file)
     return next(new Error("please upload videos !", { cause: 400 }));
 
@@ -44,7 +53,7 @@ export const uploadVideos = asyncHandler(async (req, res, next) => {
     cloudinary.uploader.upload_large(
       req.file.path,
       {
-        folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${checkCourse.categoryId}/${checkCourse.addedBy}/${checkCourse._id}/videos`,
+        folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${checkCourse.categoryId}/${checkCourse.addedBy}/${checkCourse._id}/videos/${video._id}`,
         resource_type: "video",
       },
       (error, result) => {
@@ -58,16 +67,10 @@ export const uploadVideos = asyncHandler(async (req, res, next) => {
   });
 
   const durationInMinutes = result.duration / 60;
-  const content = {
-    title,
-    slug,
-
-    video: { id: result.public_id, url: result.secure_url },
-    duration: durationInMinutes,
-    course: courseId,
-  };
-
-  const video = await CourseContent.create(content);
+  video.video.id = result.public_id;
+  video.video.url = result.secure_url;
+  video.duration = durationInMinutes;
+  await video.save();
 
   checkCourse.vidoes.push(video._id);
   checkCourse.courseDuration += durationInMinutes;
@@ -126,12 +129,14 @@ export const updateVideos = asyncHandler(async (req, res, next) => {
   if (oldPublicId) {
     if (!req.file) return next(new Error("please upload video"));
 
+    const newPublicId = checkVideo.video.id.split("videos/")[1];
+
     const result = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_large(
         req.file.path,
         {
-          folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${checkCourse.categoryId}/${checkCourse.addedBy}/${checkCourse._id}/videos`,
-          public_id: checkVideo.video.id,
+          folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${checkCourse.categoryId}/${checkCourse.addedBy}/${checkCourse._id}/videos/${checkVideo._id}`,
+          public_id: newPublicId,
           resource_type: "video",
         },
         (error, result) => {
@@ -144,16 +149,23 @@ export const updateVideos = asyncHandler(async (req, res, next) => {
       );
     });
 
-    checkCourse.courseDuration -= checkVideo.duration;
-    await checkCourse.save();
+    const durationInSeconds = result.duration;
 
+    // Convert duration to minutes
+    const durationInMinutes = durationInSeconds / 60;
+
+    // Subtract the current video's duration from the course duration
+    checkCourse.courseDuration -= checkVideo.duration;
+
+    // Update video details with the new cloudinary result
     checkVideo.video.url = result.secure_url;
     checkVideo.video.id = result.public_id;
-    checkVideo.duration = result.duration / 60;
-
-    checkCourse.courseDuration += checkVideo.duration;
-
+    checkVideo.duration = durationInMinutes;
     await checkVideo.save();
+    // Update course duration based on the changes made
+    checkCourse.courseDuration += durationInMinutes;
+
+    await checkCourse.save();
   }
 
   checkCourse.updatedBy = updatedBy;
@@ -163,38 +175,51 @@ export const updateVideos = asyncHandler(async (req, res, next) => {
     success: true,
     message: "video updated",
     video: checkVideo,
+
+    duration: checkCourse.courseDuration,
   });
 });
-//===========================delete specifc video===============
-export const deleteSpecificVideo = asyncHandler(async (req, res, next) => {
-  const { courseId, videoId } = req.params;
 
-  const checkCourse = await Course.findById(courseId);
+// //===========================delete specifc video===============
+// export const deleteSpecificVideo = asyncHandler(async (req, res, next) => {
+//   const { courseId, videoId } = req.params;
 
-  if (!checkCourse)
-    return next(
-      new Error("course you try to update its videos not found", { cause: 404 })
-    );
+//   const checkCourse = await Course.findById(courseId);
 
-  const checkVideo = await CourseContent.findById(videoId);
-  if (!checkVideo) return next(new Error("video not found", { cause: 404 }));
+//   if (!checkCourse)
+//     return next(
+//       new Error("course you try to update its videos not found", { cause: 404 })
+//     );
 
-  if (req.authUser._id.toString() !== checkCourse.addedBy.toString()) {
-    return next(
-      new Error("you are not Authorized to delete videos this course", {
-        cause: 400,
-      })
-    );
-  }
+//   const checkVideo = await CourseContent.findById(videoId);
+//   if (!checkVideo) return next(new Error("video not found", { cause: 404 }));
 
-  checkCourse.vidoes = checkCourse.vidoes.filter(
-    (videoid) => videoid.toString() !== videoId
-  );
-  await checkCourse.save();
-  const deletedVideo = await CourseContent.findByIdAndDelete(videoId);
-  if (!deletedVideo) {
-    return next(new Error("error while deleting"), { cause: 500 });
-  }
+//   if (req.authUser._id.toString() !== checkCourse.addedBy.toString()) {
+//     return next(
+//       new Error("you are not Authorized to delete videos this course", {
+//         cause: 400,
+//       })
+//     );
+//   }
 
-  return res.status(200).json({ success: true, message: "video deleted!" });
-});
+//   checkCourse.vidoes = checkCourse.vidoes.filter(
+//     (videoid) => videoid.toString() !== videoId
+//   );
+
+//   checkCourse.courseDuration -= checkVideo.duration;
+//   await checkCourse.save();
+
+//   await cloudinary.api.delete_resources(checkVideo.video.id);
+//   // await cloudinary.api.delete_folder(
+//   //   `${process.env.CLOUD_FOLDER_NAME}/Categories/${checkCourse.categoryId}/${checkCourse.addedBy}/${checkCourse._id}/videos/${checkVideo._id}`,
+//   //   { recursive: true }
+//   // );
+
+//   const deletedVideo = await CourseContent.findByIdAndDelete(videoId);
+
+//   if (!deletedVideo) {
+//     return next(new Error("error while deleting"), { cause: 500 });
+//   }
+
+//   return res.status(200).json({ success: true, message: "video deleted!" });
+// });

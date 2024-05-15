@@ -22,11 +22,11 @@ router.put(
   ), contentController.updateVideos
 );
 
-router.delete(
-  "/deleteSpceficVideo/:courseId/:videoId",
-  authuntication(endPointsRoles.DELETE_COURSE),
+// router.delete(
+//   "/deleteSpceficVideo/:courseId/:videoId",
+//   authuntication(endPointsRoles.DELETE_COURSE),
 
-  contentController.deleteSpecificVideo
-);
+//   contentController.deleteSpecificVideo
+// );
 
 export default router;
