@@ -5,12 +5,13 @@ import { multerMiddleHost } from "../../middlewares/multer-middleware.js";
 import { allowedExtensions } from "../../utils/allowed-extentions.js";
 import * as courseController from "./course.controller.js";
 import * as courseSchema from "./course.Schemas.js";
+import { checkCourseInstructor } from "../../utils/checkCourseInstructor.js";
 
 import { validationMiddleware } from "../../middlewares/validation-middleware.js";
 const router = Router();
 
 router.post(
-  "/uploadCourseInfo",
+  "/uploadCourseInfo/:categoryId",
   authuntication(endPointsRoles.UPLOAD_COURSE),
   multerMiddleHost(allowedExtensions.image).single("course image"),
   validationMiddleware(courseSchema.uploadCourseInfoSchema),
@@ -19,6 +20,7 @@ router.post(
 router.put(
   "/updatecourseInfo/:courseId",
   authuntication(endPointsRoles.UPDATE_COURSE),
+  checkCourseInstructor(),
   multerMiddleHost(allowedExtensions.image).single("course image"),
   courseController.updateCourseInfo
 );

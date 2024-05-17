@@ -37,8 +37,8 @@ const courseSchema = new Schema(
 
     //image
     image: {
-      id: { type: String, required: true, unique: true },
-      url: { type: String, required: true },
+      id: { type: String, unique: true },
+      url: { type: String,  },
     },
     //booleans
 

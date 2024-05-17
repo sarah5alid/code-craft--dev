@@ -3,6 +3,6 @@ export const asyncHandler = (controller) => {
       controller(req, res, next).catch((error) => {
         return next(error);
       });
-    };
+    } 
   };
   

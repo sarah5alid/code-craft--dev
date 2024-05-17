@@ -13,7 +13,7 @@ export const uploadCourseInfoSchema = {
     prerequisites: joi.string().required(),
     basePrice: joi.number().required(),
   }),
-  query: joi.object({
+  params: joi.object({
     categoryId: joi.string().custom(isValidObjectId).required(),
   }),
 };

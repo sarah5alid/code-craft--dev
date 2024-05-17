@@ -4,11 +4,11 @@ import { Course } from "../../../DB/models/course-model.js";
 import { asyncHandler } from "../../utils/async-Handeller.js";
 import cloudinary from "../../utils/cloudinary.js";
 import slugify from "slugify";
-import generateUniqurString from "../../utils/generate-unique-string.js";
 import userModel from "../../../DB/models/user-model.js";
+
 export const uploadCourseInfo = asyncHandler(async (req, res, next) => {
   const { name, desc, level, prerequisites, discount, basePrice } = req.body;
-  const { categoryId } = req.query; //ASK
+  const { categoryId } = req.params; //ASK
   const addedBy = req.authUser._id;
 
   //check category
@@ -51,7 +51,7 @@ export const uploadCourseInfo = asyncHandler(async (req, res, next) => {
   };
 
   const newCourse = await Course.create(CourseInfo);
-
+  req.savedDocuments = { model: Course, _id: newCourse._id };
   checkcategory.courses.push(newCourse._id);
   await checkcategory.save();
 
@@ -91,75 +91,72 @@ export const uploadCourseInfo = asyncHandler(async (req, res, next) => {
 //===================update
 
 export const updateCourseInfo = async (req, res, next) => {
-  // 1- destructuring the request body
-  const { name, desc, level, prerequisites, basePrice, oldPublicId } = req.body;
-  // 2- destructuring the request params
-  const { courseId } = req.params;
-  // 3- destructuring _id from the request authUser
+  const { name, desc, level, prerequisites, discount, basePrice, oldPublicId } =
+    req.body;
+
   const updatedBy = req.authUser._id;
 
-  // 4- check if the course is exist bu using courseId
-  const course = await Course.findById(courseId);
-  if (!course) return next({ cause: 404, message: "Course not found" });
-
-  //authorization
-
-  if (req.authUser._id.toString() !== course.addedBy.toString())
-    return next(new Error("you are not authorized to update this course"));
-
-  // 5- check if the use want to update the name field
   if (name) {
-    // 5.1 check if the new course name different from the old name
-    if (name == course.name) {
+    if (name == req.checkCourse.courseName) {
       return next({
         cause: 400,
         message: "Please enter different course name from the existing one.",
       });
     }
 
-    // 5.2 check if the new course name is already exist
-    const isNameDuplicated = await Course.findOne({ name });
+    const isNameDuplicated = await Course.findOne({ courseName: name });
     if (isNameDuplicated) {
       return next({ cause: 409, message: "Course name is already exist" });
     }
 
-    // 5.3 update the course name and the course slug
-    course.courseName = name;
-    course.slug = slugify(name, "-");
+    req.checkCourse.courseName = name;
+    req.checkCourse.slug = slugify(name, "-");
+
+    await req.checkCourse.save();
+
+    console.log(req.checkCourse.courseName);
   }
 
-  course.desc = desc ? desc : course.desc;
-  course.level = level ? level : course.level;
-  course.prerequisites = prerequisites ? prerequisites : course.prerequisites;
-  course.basePrice = basePrice ? basePrice : course.basePrice;
-  course.isApproved = false;
+  req.checkCourse.desc = desc ? desc : req.checkCourse.desc;
+  req.checkCourse.level = level ? level : req.checkCourse.level;
+  req.checkCourse.prerequisites = prerequisites
+    ? prerequisites
+    : req.checkCourse.prerequisites;
+  req.checkCourse.basePrice = basePrice ? basePrice : req.checkCourse.basePrice;
 
-  await course.save();
+  const appliedPrice = basePrice - basePrice * ((discount || 0) / 100);
+  req.checkCourse.appliedPrice = appliedPrice
+    ? appliedPrice
+    : req.checkCourse.appliedPrice;
 
-  // 6- check if the user want to update the image
+  req.checkCourse.isApproved = false;
+
+  await req.checkCourse.save();
+
   if (oldPublicId) {
     if (!req.file) return next({ cause: 400, message: "Image is required" });
 
-    const newPulicId = oldPublicId.split('Images/')[1];
+    const newPulicId = oldPublicId.split("Images/")[1];
 
     const { secure_url } = await cloudinary().uploader.upload(req.file.path, {
-      folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${course.categoryId}/${addedBy}/${course._id}/Images`,
+      folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${req.checkCourse.categoryId}/${addedBy}/${req.checkCourse._id}/Images`,
 
       public_id: newPulicId,
     });
-    course.image.url = secure_url;
-    course.image.id = newPulicId;
-    await course.save();
+    req.checkCourse.image.url = secure_url;
+    req.checkCourse.image.id = newPulicId;
+    await req.checkCourse.save();
   }
 
-  // 7- set value for the updatedBy field
-  course.updatedBy = updatedBy;
+  req.checkCourse.updatedBy = updatedBy;
 
-  await course.save();
+  await req.checkCourse.save();
+
   res.status(200).json({
     success: true,
-    message: "course updated successfully",
-    data: course,
+    message:
+      "Course information Updated Successfully, please contact our support to review the course",
+    data: req.checkCourse,
   });
 };
 //=============================delete course===============
