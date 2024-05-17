@@ -7,7 +7,7 @@ import courseRouter from "./course/course.router.js";
 
 import courseContentRouter from "./course-content/course-content.router.js";
 
-//import getCoursesRouter from './get-course/get-courses.router.js'
+import getCoursesRouter from './get-course/get-courses.router.js'
 
 import adminPriviligesRouter from "./Admin-priviliges/admin.router.js";
 
@@ -17,7 +17,7 @@ export {
   userRouter,
   categoryRouter,
   courseRouter,
-  courseContentRouter /*getCoursesRouter*/,
+  courseContentRouter ,getCoursesRouter,
   adminPriviligesRouter,
   couponRouter
 };

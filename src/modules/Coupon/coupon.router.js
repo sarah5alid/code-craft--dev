@@ -14,10 +14,16 @@ router.post(
   couponController.addCoupon
 );
 
-// router.get(
-//   "/applyCoupon",
-//   authuntication(endpointsRoles.ADD_COUPOUN),
-//   // validationMiddleware(validators.addCouponSchema),
-//   couponController.applyCoupon
-// );
+router.get(
+  "/applyCoupon",
+  authuntication(endpointsRoles.ADD_COUPOUN),
+
+  couponController.validteCouponApi
+);
+
+router.get(
+  "/getAllCoupons",
+  authuntication(endpointsRoles.ADD_COUPOUN),
+  couponController.getAllCoupons
+);
 export default router;

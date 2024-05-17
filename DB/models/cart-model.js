@@ -8,11 +8,11 @@ const cartSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    products: [
+    courses: [
         {
-            productId: {
+            courseId: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'Product',
+                ref: 'Course',
                 required: true
             },
             quantity: {

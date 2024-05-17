@@ -2,10 +2,6 @@ import { Router } from "express";
 
 import * as getCCountroller from "./get-courses.controller.js";
 
-import {
-  getNon_ApprovedCoursesby_Admins,
-  approveCourse,
-} from "./approve-course.js";
 import { authuntication } from "../../middlewares/auth-middleware.js";
 import { endPointsRoles } from "./get-endpints-roles.js";
 import { systemRoles } from "../../utils/system-roles.js";

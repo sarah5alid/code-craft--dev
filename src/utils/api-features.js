@@ -119,7 +119,7 @@ export class APIFeatures {
       .replace(/asc/g, 1)
       .replace(/ /g, ":"); // 'stock  desc' => 'stock: -1'
     const [key, value] = formula.split(":");
-
+    console.log([key], value);
     this.mongooseQuery = this.mongooseQuery.sort({ [key]: +value });
     return this;
   }

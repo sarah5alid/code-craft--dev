@@ -67,7 +67,7 @@ export const uploadVideos = asyncHandler(async (req, res, next) => {
 
   return res
     .status(201)
-    .json({ success: true, message: "video uploaded!", video: video });
+    .json({ success: true, message: "video uploaded successfully!", video: video });
 });
 
 //======================update

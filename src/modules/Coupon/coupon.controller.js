@@ -1,6 +1,7 @@
 import couponModel from "../../../DB/models/coupon-model.js";
 import { asyncHandler } from "../../utils/async-Handeller.js";
-
+import { couponValidation } from "../../utils/applyCoupon-validation.js";
+import { APIFeatures } from "../../utils/api-features.js";
 //============================== Add Coupon API ==============================//
 /**
  * @param {*} req.body  { couponCode , couponAmount , fromDate, toDate , isFixed , isPercentage, Users}
@@ -31,6 +32,7 @@ export const addCoupon = asyncHandler(async (req, res, next) => {
   };
 
   const coupon = await couponModel.create(couponObject);
+  req.savedDocument = { model: couponModel, _id: coupon._id };
 
   res.status(201).json({ message: "Coupon added successfully", coupon });
 });
@@ -44,15 +46,41 @@ export const addCoupon = asyncHandler(async (req, res, next) => {
  */
 
 //=========================== For Testing ===========================//
-export const validteCouponApi = async (req, res, next) => {
+export const validteCouponApi = asyncHandler(async (req, res, next) => {
   const { code } = req.body;
- 
 
   // applyCouponValidation
-  const isCouponValid = await applyCouponValidation(code);
+  const isCouponValid = await couponValidation(code);
   if (isCouponValid.status) {
-    return next({ message: isCouponValid.msg, cause: isCouponValid.status });
+    return next({
+      message: isCouponValid.message,
+      cause: isCouponValid.status,
+    });
   }
 
   return res.json({ message: "coupon is valid", coupon: isCouponValid });
-};
+})
+//=============================== get All coupons========================
+
+export const getAllCoupons=  asyncHandler(async(req,res,next) =>{
+
+
+  const features = new APIFeatures(req.query, couponModel.find({couponStatus:"valid"}));
+
+  features.filter().fields().sort().search().pagination;
+
+  const coupons = await features.mongooseQuery;
+
+  if (coupons.length == 0) {
+    return next(new Error("No coupons found!", { cause: 404 }));
+  }
+
+  //const pageNumber = features.pageNumber;
+  const couponsNum = coupons.length;
+  return res.status(200).json({ success: true,coupons , couponsNum });
+
+
+
+
+
+})
