@@ -150,6 +150,8 @@ export const signIn = asyncHandler(async (req, res, next) => {
 
   User.accessToken.token = token;
   await User.save();
+
+  console.log(User.accessToken.token);
   // updated isLoggedIn = true  in database
 
   User.isLoggedIn = true;

@@ -12,6 +12,9 @@ import getCoursesRouter from './get-course/get-courses.router.js'
 import adminPriviligesRouter from "./Admin-priviliges/admin.router.js";
 
 import couponRouter from './Coupon/coupon.router.js'
+
+
+import cartRouter from './Cart/cart.router.js'
 export {
   authRouter,
   userRouter,
@@ -19,5 +22,6 @@ export {
   courseRouter,
   courseContentRouter ,getCoursesRouter,
   adminPriviligesRouter,
-  couponRouter
+  couponRouter,
+  cartRouter
 };
