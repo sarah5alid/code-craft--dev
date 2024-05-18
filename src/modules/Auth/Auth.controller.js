@@ -148,7 +148,7 @@ export const signIn = asyncHandler(async (req, res, next) => {
     process.env.SECRET_KEY
   );
 
-  User.accessToken.token = token;
+  User.accessToken = { token: token, isValid: true };
   await User.save();
 
   console.log(User.accessToken.token);
