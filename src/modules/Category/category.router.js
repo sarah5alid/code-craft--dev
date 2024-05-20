@@ -21,4 +21,10 @@ router.put(
   categoryController.updateCategory
 );
 
+router.get(
+  "/getAllCategories",
+  authuntication(endPointsRoles.ADD_CATEGORY),
+  categoryController.getALlCategories
+);
+
 export default router;

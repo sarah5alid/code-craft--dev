@@ -67,7 +67,7 @@ export const getAllCoupons=  asyncHandler(async(req,res,next) =>{
 
   const features = new APIFeatures(req.query, couponModel.find({couponStatus:"valid"}));
 
-  features.filter().fields().sort().search().pagination;
+  features.filter().fields().sort().search().pagination();
 
   const coupons = await features.mongooseQuery;
 

@@ -79,7 +79,7 @@ export const getRecentlyViewedCourses = async (req, res, next) => {
 export const getAllCourses = asyncHandler(async (req, res, next) => {
   const features = new APIFeatures(req.query, Course.find());
 
-  features.filter().fields().sort().search();
+  features.filter().fields().sort().search().pagination();
 
   const courses = await features.mongooseQuery;
 

@@ -1,6 +1,7 @@
 import slugify from "slugify";
 import { Category } from "../../../DB/models/category-model.js";
 import { asyncHandler } from "../../utils/async-Handeller.js";
+import { APIFeatures } from "../../utils/api-features.js";
 
 export const addCategory = asyncHandler(async (req, res, next) => {
   //destruct request boody
@@ -73,5 +74,23 @@ export const updateCategory = asyncHandler(async (req, res, next) => {
 });
 //===================Delete TO DO
 //================== Get  TO DO
+export const getALlCategories=asyncHandler(async(req,res,next)=>{
+
+
+  const features = new APIFeatures(req.query, Category.find());
+
+  features.filter().fields().sort().search().pagination();
+
+  const categories = await features.mongooseQuery;
+
+  if (categories.length == 0) {
+    return next(new Error("No courses found!", { cause: 404 }));
+  }
+
+  //const pageNumber = features.pageNumber;
+  const categoryNum = categories.length;
+  return res.status(200).json({ success: true, categories, categoryNum });
+
+})
 
 
