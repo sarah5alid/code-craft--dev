@@ -82,7 +82,7 @@ export const pinUser = asyncHandler(async (req, res, next) => {
 
   const user = await userModel.findByIdAndUpdate(
     userId,
-    { isPinned: true },
+    { isPinned: true, isActive: false },
     { new: true }
   );
 
@@ -100,7 +100,7 @@ export const unPinUser = asyncHandler(async (req, res, next) => {
 
   const user = await userModel.findByIdAndUpdate(
     userId,
-    { isPinned: false },
+    { isPinned: false, isActive: true },
     { new: true }
   );
 
