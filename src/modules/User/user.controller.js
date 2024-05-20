@@ -179,7 +179,7 @@ export const getProfile = asyncHandler(async (req, res, next) => {
   const user = await userModel
     .findById(id)
     .select(
-      "firstName lastName phoneNumber Bio contactInfo education experience _id profile_pic"
+      "firstName lastName phoneNumber Bio contactInfo education experience _id profile_pic role"
     );
   if (!user) {
     return next(new Error("Not found!", { cause: 404 }));
@@ -195,6 +195,7 @@ export const getProfile = asyncHandler(async (req, res, next) => {
     experience: user.experience,
     education: user.education,
     contactinfo: user.contactInfo,
+    role: user.role,
   };
 
   return res.status(200).json({ success: true, profile: User });
