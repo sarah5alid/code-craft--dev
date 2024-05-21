@@ -18,13 +18,6 @@ export function cron1() {
 }
 export function cron2() {
   scheduleJob("0 0 0 1 * * ", async () => {
-    const coupons = await couponModel.find({ couponStatus: "expired" });
-    const ids = coupons.map((coupon) => coupon._id);
-
-    await couponModel.findByIdAndDelete({
-      _id: {
-        $in: ids,
-      },
-    });
+    await couponModel.deleteMany({ couponStatus: "expired" });
   });
 }

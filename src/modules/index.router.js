@@ -7,21 +7,24 @@ import courseRouter from "./course/course.router.js";
 
 import courseContentRouter from "./course-content/course-content.router.js";
 
-import getCoursesRouter from './get-course/get-courses.router.js'
+import getCoursesRouter from "./get-course/get-courses.router.js";
 
 import adminPriviligesRouter from "./Admin-priviliges/admin.router.js";
 
-import couponRouter from './Coupon/coupon.router.js'
+import couponRouter from "./Coupon/coupon.router.js";
 
+import cartRouter from "./Cart/cart.router.js";
 
-import cartRouter from './Cart/cart.router.js'
+import orderRouter from "./order/order.router.js";
 export {
   authRouter,
   userRouter,
   categoryRouter,
   courseRouter,
-  courseContentRouter ,getCoursesRouter,
+  courseContentRouter,
+  getCoursesRouter,
   adminPriviligesRouter,
   couponRouter,
-  cartRouter
+  cartRouter,
+  orderRouter,
 };

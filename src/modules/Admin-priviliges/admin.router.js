@@ -24,14 +24,14 @@ router.patch(
 );
 
 router.put(
-  "/pinuser/:userId",
+  "/banUser/:userId",
   authuntication(systemRoles.SUPER_ADMIN),
-  adminController.pinUser
+  adminController.banUser
 );
 router.put(
-  "/unPinUser/:userId",
+  "/unBanUser/:userId",
   authuntication(systemRoles.SUPER_ADMIN),
-  adminController.unPinUser
+  adminController.unBanUser
 );
 
 export default router;

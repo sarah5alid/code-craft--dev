@@ -16,7 +16,7 @@ export const addToCart = asyncHandler(async (req, res, next) => {
    */
 
   const course = await checkCourseExists(courseId);
-  if (!course) return next({ message: course.message, cause: course.status });
+  if (course.status) return next({ message: course.message, cause: course.status });
 
   /**
    * @check if user has a cart

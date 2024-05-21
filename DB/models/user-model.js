@@ -54,10 +54,7 @@ const userSchema = new Schema(
       enum: Object.values(systemRoles),
       default: systemRoles.USER,
     },
-    isEmailVerified: {
-      type: Boolean,
-      default: false,
-    },
+
     age: {
       type: Number,
       min: 8,
@@ -72,6 +69,10 @@ const userSchema = new Schema(
       type: String,
       default: null,
     },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
 
     isDeleted: { type: Boolean, default: false },
 
@@ -80,7 +81,7 @@ const userSchema = new Schema(
       isValid: { type: Boolean, default: true },
     },
 
-    isPinned: {
+    isBanned: {
       type: Boolean,
       default: false,
     },
@@ -105,7 +106,6 @@ userSchema.pre("save", function (next) {
 
   next();
 });
-
 
 userSchema.virtual("coursesUploadedCount").get(function () {
   return this.coursesUploaded.length;

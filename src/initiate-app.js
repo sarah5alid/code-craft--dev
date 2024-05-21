@@ -20,6 +20,7 @@ export const initiateApp = async (app, express) => {
   app.use("/Coupon", routers.couponRouter);
 
   app.use("/Cart", routers.cartRouter);
+  app.use("/Order", routers.orderRouter);
   app.all("*", (req, res, next) => {
     return next(new Error("page not found"));
   });

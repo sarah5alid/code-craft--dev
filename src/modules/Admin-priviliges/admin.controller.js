@@ -16,9 +16,9 @@ export const approveCourse = asyncHandler(async (req, res, next) => {
   const { courseId } = req.params;
 
   const course = await Course.findById(courseId);
-  if (!course) return next(new Error("course not found", { cause: 404 }));
+  if (!course) return next(new Error("Course not found", { cause: 404 }));
   if (course.isApproved == true)
-    return next({ message: "course already approved", cause: 400 });
+    return next({ message: "Course already approved", cause: 409 });
 
   course.isApproved = true;
   await course.save();
@@ -34,9 +34,9 @@ export const disApproveCourse = asyncHandler(async (req, res, next) => {
   const { courseId } = req.params;
 
   const course = await Course.findById(courseId);
-  if (!course) return next(new Error("course not found", { cause: 404 }));
+  if (!course) return next({ message: "course not found", cause: 404 });
   if (course.isApproved == false)
-    return next({ message: "course already disapproved", cause: 409 });
+    return next({ message: "Course already disapproved", cause: 409 });
 
   course.isApproved = false;
   await course.save();
@@ -59,10 +59,10 @@ export const getAllUsers = asyncHandler(async (req, res, next) => {
   const users = await features.mongooseQuery;
   console.log(users);
   if (users.length == 0) {
-    return next(new Error("No users found!", { cause: 404 }));
+    return next({ message: "No users found!", cause: 404 });
   }
   const usersNum = users.length;
-
+  s;
   //const pageNumber = features.pageNumber;
 
   return res.status(200).json({ success: true, users, usersNum });
@@ -70,43 +70,47 @@ export const getAllUsers = asyncHandler(async (req, res, next) => {
 
 //=======================5)============
 
-export const pinUser = asyncHandler(async (req, res, next) => {
+export const banUser = asyncHandler(async (req, res, next) => {
   const { userId } = req.params;
 
   console.log(userId);
-  const userRole = await userModel.findById(userId);
-
-  if (userRole == "superAdmin") {
-    return next(new Error("you cannot pin this user"));
-  }
-
-  const user = await userModel.findByIdAndUpdate(
-    userId,
-    { isPinned: true, isActive: false },
-    { new: true }
-  );
+  const user = await userModel.findById(userId);
 
   if (!user) {
-    return next(new Error("User you try to pin not found"));
+    return next({ message: "User you try to ban not found", cause: 404 });
   }
 
-  return res.status(200).json({ success: true, message: "user pinned" });
+  if (user.role == "superAdmin" || user.isBanned == true) {
+    return next({ message: "You cannot ban this user", cause: 409 });
+  }
+
+  user.isBanned = true;
+  user.isActive = false;
+  await user.save();
+
+  return res.status(200).json({ success: true, message: "User Banned", user });
 });
 
 //=======================6)============
 
-export const unPinUser = asyncHandler(async (req, res, next) => {
+export const unBanUser = asyncHandler(async (req, res, next) => {
   const { userId } = req.params;
 
-  const user = await userModel.findByIdAndUpdate(
-    userId,
-    { isPinned: false, isActive: true },
-    { new: true }
-  );
+  const user = await userModel.findById(userId);
 
   if (!user) {
-    return next(new Error("User you try to unpin not found"));
+    return next({ message: "User you try to unban not found", cause: 404 });
   }
 
-  return res.status(200).json({ success: true, message: "user unpinned" });
+  if (user.isBanned == false) {
+    return next({ message: "You cannot unban this user", cause: 409 });
+  }
+
+  user.isBanned = false;
+  user.isActive = true;
+  await user.save();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "User Unbanned", user });
 });
