@@ -16,7 +16,6 @@ export const signUp = asyncHandler(async (req, res, next) => {
     password,
     confirmpassword,
     age,
-
     gender,
     phoneNumber,
   } = req.body;
