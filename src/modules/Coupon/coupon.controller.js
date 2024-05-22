@@ -34,7 +34,9 @@ export const addCoupon = asyncHandler(async (req, res, next) => {
   const coupon = await couponModel.create(couponObject);
   req.savedDocument = { model: couponModel, _id: coupon._id };
 
-  res.status(201).json({success:true , message: "Coupon added successfully", coupon });
+  res
+    .status(201)
+    .json({ success: true, message: "Coupon added successfully", coupon });
 });
 
 /**
@@ -58,29 +60,44 @@ export const validteCouponApi = asyncHandler(async (req, res, next) => {
     });
   }
 
-  return res.json({ success:true,message: "coupon is valid", coupon: isCouponValid });
-})
+  return res.json({
+    success: true,
+    message: "coupon is valid",
+    coupon: isCouponValid,
+  });
+});
 //=============================== get All coupons========================
 
-export const getAllCoupons=  asyncHandler(async(req,res,next) =>{
-
-
-  const features = new APIFeatures(req.query, couponModel.find({couponStatus:"valid"}));
+export const getAllCoupons = asyncHandler(async (req, res, next) => {
+  const features = new APIFeatures(
+    req.query,
+    couponModel.find({ couponStatus: "valid" })
+  );
 
   features.filter().fields().sort().search().pagination();
 
   const coupons = await features.mongooseQuery;
 
   if (coupons.length == 0) {
-    return next(new Error("No coupons found!", { cause: 404 }));
+    return next({ message: "No Coupons found!", cause: 404 });
   }
 
   //const pageNumber = features.pageNumber;
   const couponsNum = coupons.length;
-  return res.status(200).json({ success: true,coupons , couponsNum });
+  return res.status(200).json({ success: true, coupons, couponsNum });
+});
+//====================delete coupon
 
+export const deleteCoupon = asyncHandler(async (req, res, next) => {
+  const {couponId} = req.params;
 
+  const coupon = await couponModel.findByIdAndDelete(couponId);
 
+  if (!coupon) {
+    return next({ message: "Coupon not found", cause: 404 });
+  }
 
-
-})
+  return res
+    .status(200)
+    .json({ success: true, message: "Coupon deleted successfully" });
+});

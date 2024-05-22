@@ -190,7 +190,7 @@ export const payWithStripe = asyncHandler(async (req, res, next) => {
 
   if (order.coupon) {
     const stripeCoupon = await createStripeCoupon({ couponId: order.coupon });
-    console.log(order.coupon);
+  
     if (stripeCoupon.status)
       return next({ message: stripeCoupon.message, cause: 404 });
 

@@ -26,4 +26,11 @@ router.get(
   authuntication(endpointsRoles.ADD_COUPOUN),
   couponController.getAllCoupons
 );
+
+router.delete(
+  "/deleteCoupon/:couponId",
+  authuntication(endpointsRoles.ADD_COUPOUN),
+  couponController.deleteCoupon 
+);
+
 export default router;
