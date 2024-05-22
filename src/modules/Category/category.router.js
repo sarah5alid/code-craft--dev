@@ -4,6 +4,7 @@ import { endPointsRoles } from "./category.endpoints.js";
 import * as categoryController from "./category.controller.js";
 import * as categorySchema from "./category.Schemas.js";
 import { validationMiddleware } from "../../middlewares/validation-middleware.js";
+import { systemRoles } from "../../utils/system-roles.js";
 const router = Router();
 router.post(
   "/addCategory",
@@ -23,7 +24,7 @@ router.put(
 
 router.get(
   "/getAllCategories",
-  authuntication(endPointsRoles.ADD_CATEGORY),
+  authuntication(Object.values(systemRoles)),
   categoryController.getALlCategories
 );
 
