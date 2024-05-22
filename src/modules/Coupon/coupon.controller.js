@@ -34,7 +34,7 @@ export const addCoupon = asyncHandler(async (req, res, next) => {
   const coupon = await couponModel.create(couponObject);
   req.savedDocument = { model: couponModel, _id: coupon._id };
 
-  res.status(201).json({ message: "Coupon added successfully", coupon });
+  res.status(201).json({success:true , message: "Coupon added successfully", coupon });
 });
 
 /**
@@ -58,7 +58,7 @@ export const validteCouponApi = asyncHandler(async (req, res, next) => {
     });
   }
 
-  return res.json({ message: "coupon is valid", coupon: isCouponValid });
+  return res.json({ success:true,message: "coupon is valid", coupon: isCouponValid });
 })
 //=============================== get All coupons========================
 

@@ -82,9 +82,11 @@ export const updateProfileData = asyncHandler(async (req, res, next) => {
     role: User.role,
   };
 
-  return res
-    .status(200)
-    .json({ success: true, message: "profile updated", user: updatedUser });
+  return res.status(200).json({
+    success: true,
+    message: "profile updated successfully",
+    user: updatedUser,
+  });
 });
 
 //=======================upload profile pic=====================
@@ -122,7 +124,7 @@ export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
 
   return res.status(200).json({
     success: true,
-    message: "profile picture uploaded !",
+    message: "profile picture uploaded ",
     photo: User.profile_pic,
     userId: User._id,
   });
@@ -148,7 +150,7 @@ export const updateProfile_Pic = asyncHandler(async (req, res, next) => {
   }
   return res.status(200).json({
     success: true,
-    message: "profile picture updated !",
+    message: "profile picture updated ",
     photo: user.profile_pic,
     userId: user._id,
   });
@@ -160,7 +162,9 @@ export const deleteProfile_Pic = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
   const user = await userModel.findById(id);
   await cloudinary.uploader.destroy(user.profile_pic.id);
-  await cloudinary.api.delete_folder(  `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${id}`);
+  await cloudinary.api.delete_folder(
+    `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${id}`
+  );
   user.profile_pic = { url: undefined, id: undefined };
   await user.save();
 
