@@ -19,7 +19,6 @@ const couponSchema = new mongoose.Schema(
       default: "valid",
       enum: ["valid", "expired"],
     },
-
     fromDate: {
       type: String,
       required: true,
@@ -28,7 +27,6 @@ const couponSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     maxUsage: {
       type: Number,
       required: true,
