@@ -93,6 +93,10 @@ const userSchema = new Schema(
     recentlyViewedCourses: [{ type: Types.ObjectId, ref: "Course" }],
 
     coursesUploaded: [{ type: Types.ObjectId, ref: "Course" }],
+    coursesUploadedCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -106,8 +110,9 @@ userSchema.pre("save", function (next) {
 
   next();
 });
-
-userSchema.virtual("coursesUploadedCount").get(function () {
-  return this.coursesUploaded.length;
+userSchema.pre("save", function (next) {
+  this.coursesUploadedCount = this.coursesUploaded.length;
+  next();
 });
+
 export default mongoose.models.User || mongoose.model("User", userSchema);

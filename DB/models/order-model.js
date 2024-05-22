@@ -29,7 +29,7 @@ const orderSchema = new mongoose.Schema(
     paymentMethod: { type: String, enum: ["Stripe", "Paymob"], required: true },
     orderStatus: {
       type: String,
-      enum: ["Pending", "Paid", "Cancelled"],
+      enum: ["Pending", "Paid", "Cancelled","Refunded"],
       required: true,
       default: "Pending",
     },
