@@ -65,4 +65,4 @@ export const createPaymentIntent = async ({ amount, currency }) => {
   return paymentIntent;
 };
 
-export const confirmPaymentIntent=async({payment})
+// export const confirmPaymentIntent=async({payment})
