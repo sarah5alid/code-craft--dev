@@ -6,13 +6,6 @@ import bcrypt from "bcryptjs";
 import cloudinary from "../../utils/cloudinary.js";
 
 //==============update password===================//
-const getUserProfilePicFolderPath = (folderId) => {
-  if (folderId === null || folderId === undefined) {
-    throw new Error(`Invalid folder id "${folderId}".`);
-  }
-
-  return `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${folderId}`;
-};
 
 export const updatePassword = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
@@ -93,6 +86,7 @@ export const updateProfileData = asyncHandler(async (req, res, next) => {
 
 export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
+  const User = await userModel.findById(id);
 
   //upload image on cloudinary
   const { public_id, secure_url } = await cloudinary.uploader.upload(
@@ -105,13 +99,8 @@ export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
 
   // save URL in DB
 
-  const User = await userModel.findByIdAndUpdate(
-    id,
-    {
-      profile_pic: { url: secure_url, id: public_id },
-    },
-    { new: true }
-  );
+  User.profile_pic = { url: secure_url, id: public_id };
+  await User.save();
 
   if (!User) {
     await cloudinary.uploader.destroy(User.profile_pic.id);
@@ -165,13 +154,16 @@ export const deleteProfile_Pic = asyncHandler(async (req, res, next) => {
   await cloudinary.api.delete_folder(
     `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${id}`
   );
-  user.profile_pic = { url: undefined, id: undefined };
+  user.profile_pic = {
+    url: "https://res.cloudinary.com/dsx35oatb/image/upload/v1716397721/Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_vyeuae.png",
+    id: "Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_vyeuae",
+  };
   await user.save();
 
   return res.status(200).json({
     success: true,
     message: "profile picture removed ",
-    userId: user._id,
+    user,
   });
 });
 
