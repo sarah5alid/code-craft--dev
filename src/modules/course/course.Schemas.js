@@ -8,7 +8,7 @@ export const uploadCourseInfoSchema = {
     desc: joi.string().min(20).required(),
     level: joi
       .string()
-      .valid("Beginner", "Intermediate", "Advanced")
+      .valid("All","Beginner", "Intermediate", "Advanced")
       .required(),
     prerequisites: joi.string().required(),
     basePrice: joi.number().required(),

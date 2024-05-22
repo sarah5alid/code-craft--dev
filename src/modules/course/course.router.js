@@ -13,7 +13,7 @@ const router = Router();
 router.post(
   "/uploadCourseInfo/:categoryId",
   authuntication(endPointsRoles.UPLOAD_COURSE),
-  multerMiddleHost(allowedExtensions.image).single("course image"),
+  multerMiddleHost(allowedExtensions.image).single("courseImage"),
   validationMiddleware(courseSchema.uploadCourseInfoSchema),
   courseController.uploadCourseInfo
 );
@@ -21,7 +21,7 @@ router.put(
   "/updatecourseInfo/:courseId",
   authuntication(endPointsRoles.UPDATE_COURSE),
   checkCourseInstructor(),
-  multerMiddleHost(allowedExtensions.image).single("course image"),
+  multerMiddleHost(allowedExtensions.image).single("courseImage"),
   courseController.updateCourseInfo
 );
 
