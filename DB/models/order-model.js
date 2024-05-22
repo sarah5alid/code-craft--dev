@@ -24,12 +24,10 @@ const orderSchema = new mongoose.Schema(
     coupon: { type: mongoose.Schema.Types.ObjectId, ref: "Coupon" },
     totalPrice: { type: Number, required: true },
 
-  
-
     paymentMethod: { type: String, enum: ["Stripe", "Paymob"], required: true },
     orderStatus: {
       type: String,
-      enum: ["Pending", "Paid", "Cancelled","Refunded"],
+      enum: ["Pending", "Paid", "Cancelled", "Refunded"],
       required: true,
       default: "Pending",
     },
@@ -39,6 +37,7 @@ const orderSchema = new mongoose.Schema(
 
     cancelledAt: { type: String },
     cancelledBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    payment_intent: { type: String },
   },
   {
     timestamps: true,

@@ -2,6 +2,7 @@ import cartModel from "../../../DB/models/cart-model.js";
 import couponModel from "../../../DB/models/coupon-model.js";
 import orderModel from "../../../DB/models/order-model.js";
 import {
+  confirmPaymentIntent,
   createCheckOutSession,
   createPaymentIntent,
   createStripeCoupon,
@@ -190,7 +191,7 @@ export const payWithStripe = asyncHandler(async (req, res, next) => {
 
   if (order.coupon) {
     const stripeCoupon = await createStripeCoupon({ couponId: order.coupon });
-  
+
     if (stripeCoupon.status)
       return next({ message: stripeCoupon.message, cause: 404 });
 
@@ -205,7 +206,8 @@ export const payWithStripe = asyncHandler(async (req, res, next) => {
     amount: order.totalPrice,
     currency: "EGP",
   });
-
+  order.payment_intent = paymentIntent.id;
+  await order.save();
   return res.status(200).json({ checkOutSession, paymentIntent });
 });
 
@@ -227,7 +229,11 @@ export const stripeWebhookLocal = asyncHandler(async (req, res, next) => {
 
   await confirmedOrder.save();
 
+  const conformPaymentIntentDetails = await confirmPaymentIntent(
+    confirmedOrder.payment_intent
+  );
+
+  console.log(conformPaymentIntentDetails);
   res.status(200).json({ message: "webhook received" });
 });
 //============
-

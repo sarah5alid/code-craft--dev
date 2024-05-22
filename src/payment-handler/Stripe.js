@@ -22,7 +22,6 @@ export const createCheckOutSession = async ({
   return paymentData;
 };
 
-
 //===========stripe coupon =============
 
 export const createStripeCoupon = async ({ couponId }) => {
@@ -60,10 +59,26 @@ export const createPaymentIntent = async ({ amount, currency }) => {
     currency,
     automatic_payment_methods: {
       enabled: true,
+      allow_redirects: "never",
     },
     payment_method: paymentMethod.id,
   });
   return paymentIntent;
 };
 
-// export const confirmPaymentIntent=async({payment})
+export const retreivePaymentIntent = async (paymentIntentId) => {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+  const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+  return paymentIntent;
+};
+
+export const confirmPaymentIntent = async (paymentIntentId) => {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+  const paymentIntentDetails = await retreivePaymentIntent(paymentIntentId);
+  const paymentIntent = await stripe.paymentIntents.confirm(paymentIntentId, {
+    payment_method: paymentIntentDetails.payment_method,
+  });
+  return paymentIntent;
+};

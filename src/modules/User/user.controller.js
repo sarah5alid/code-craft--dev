@@ -93,7 +93,6 @@ export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
     req.file.path,
     {
       folder: `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${id}`,
-      resource_type: "image",
     }
   );
 
@@ -155,8 +154,8 @@ export const deleteProfile_Pic = asyncHandler(async (req, res, next) => {
     `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${id}`
   );
   user.profile_pic = {
-    url: "https://res.cloudinary.com/dsx35oatb/image/upload/v1716397721/Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_vyeuae.png",
-    id: "Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_vyeuae",
+    url: "https://res.cloudinary.com/dsx35oatb/image/upload/v1716410446/Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_ry6suu.png",
+    id: "Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_ry6suu",
   };
   await user.save();
 
