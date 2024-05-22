@@ -62,6 +62,8 @@ export const getAllUsers = asyncHandler(async (req, res, next) => {
     return next({ message: "No users found!", cause: 404 });
   }
   const usersNum = users.length;
+
+ 
   //const pageNumber = features.pageNumber;
 
   return res.status(200).json({ success: true, users, usersNum });
