@@ -5,7 +5,6 @@ import cloudinary from "../../utils/cloudinary.js";
 import { CourseContent } from "../../../DB/models/course-content-model.js";
 
 export const uploadVideos = asyncHandler(async (req, res, next) => {
-  console.log(req);
   const { title } = req.body;
 
   const checkTitle = await CourseContent.findOne({
