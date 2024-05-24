@@ -5,10 +5,11 @@ import cloudinary from "../../utils/cloudinary.js";
 import { CourseContent } from "../../../DB/models/course-content-model.js";
 
 export const uploadVideos = asyncHandler(async (req, res, next) => {
+  console.log(req);
   const { title } = req.body;
 
   const checkTitle = await CourseContent.findOne({
-    course: req.req.checkCourse._id,
+    course: req.checkCourse._id,
     title: title,
   });
 
@@ -25,7 +26,7 @@ export const uploadVideos = asyncHandler(async (req, res, next) => {
     title,
     slug,
 
-    course: req.req.checkCourse._id,
+    course: req.checkCourse._id,
   };
 
   const video = await CourseContent.create(content);
@@ -40,7 +41,7 @@ export const uploadVideos = asyncHandler(async (req, res, next) => {
     cloudinary.uploader.upload_large(
       req.file.path,
       {
-        folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${req.req.checkCourse.categoryId}/${req.req.checkCourse.addedBy}/${req.req.checkCourse._id}/videos/${video._id}`,
+        folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${req.checkCourse.categoryId}/${req.checkCourse.addedBy}/${req.checkCourse._id}/videos/${video._id}`,
         resource_type: "video",
       },
       (error, result) => {
@@ -53,7 +54,7 @@ export const uploadVideos = asyncHandler(async (req, res, next) => {
     );
   });
 
-  req.folder = `${process.env.CLOUD_FOLDER_NAME}/Categories/${req.req.checkCourse.categoryId}/${req.req.checkCourse.addedBy}/${req.req.checkCourse._id}/videos/${video._id}`;
+  req.folder = `${process.env.CLOUD_FOLDER_NAME}/Categories/${req.checkCourse.categoryId}/${req.checkCourse.addedBy}/${req.checkCourse._id}/videos/${video._id}`;
 
   const durationInMinutes = result.duration / 60;
   video.video.id = result.public_id;
@@ -61,9 +62,9 @@ export const uploadVideos = asyncHandler(async (req, res, next) => {
   video.duration = durationInMinutes;
   await video.save();
 
-  req.req.checkCourse.vidoes.push(video._id);
-  req.req.checkCourse.courseDuration += durationInMinutes;
-  await req.req.checkCourse.save();
+  req.checkCourse.vidoes.push(video._id);
+  req.checkCourse.courseDuration += durationInMinutes;
+  await req.checkCourse.save();
 
   return res
     .status(201)
@@ -81,7 +82,7 @@ export const updateVideos = asyncHandler(async (req, res, next) => {
 
   if (title) {
     const checkTitle = await CourseContent.findOne({
-      course: req.req.checkCourse._id,
+      course: req.checkCourse._id,
       title: title,
     });
 
@@ -129,7 +130,7 @@ export const updateVideos = asyncHandler(async (req, res, next) => {
     const durationInMinutes = durationInSeconds / 60;
 
     // Subtract the current video's duration from the course duration
-    req.req.checkCourse.courseDuration -= checkVideo.duration;
+    req.checkCourse.courseDuration -= checkVideo.duration;
 
     // Update video details with the new cloudinary result
     checkVideo.video.url = result.secure_url;
@@ -137,14 +138,14 @@ export const updateVideos = asyncHandler(async (req, res, next) => {
     checkVideo.duration = durationInMinutes;
     await checkVideo.save();
     // Update course duration based on the changes made
-    req.req.checkCourse.courseDuration += durationInMinutes;
+    req.checkCourse.courseDuration += durationInMinutes;
 
-    await req.req.checkCourse.save();
+    await req.checkCourse.save();
   }
 
-  req.req.checkCourse.updatedBy = updatedBy;
+  req.checkCourse.updatedBy = updatedBy;
 
-  await req.req.checkCourse.save();
+  await req.checkCourse.save();
   return res.status(200).json({
     success: true,
     message: "video updated",
