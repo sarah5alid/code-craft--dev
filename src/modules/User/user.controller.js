@@ -39,40 +39,34 @@ export const updateProfileData = asyncHandler(async (req, res, next) => {
   //TO DO =>DATE OF BIRTH
 
   const {
-    firstname,
-    lastname,
-    phonenumber,
-    bio,
+    firstName,
+    lastName,
+    phoneNumber,
+    Bio,
     experience,
     education,
-    contactinfo,
+    contactInfo,
   } = req.body;
 
   const id = req.authUser._id;
 
   const User = await userModel.findById(id);
 
-  User.firstName = firstname ? firstname : User.firstName;
-  User.lastName = lastname ? lastname : User.lastName;
-  User.phoneNumber = phonenumber ? phonenumber : User.phoneNumber;
-  User.Bio = bio ? bio : User.Bio;
+  User.firstName = firstName ? firstName : User.firstName;
+  User.lastName = lastName ? lastName : User.lastName;
+  User.phoneNumber = phoneNumber ? phoneNumber : User.phoneNumber;
+  User.Bio = Bio ? Bio : User.Bio;
   User.experience = experience ? experience : User.experience;
   User.education = education ? education : User.education;
-  User.contactInfo = contactinfo ? contactinfo : User.contactInfo;
+  User.contactInfo = contactInfo ? contactInfo : User.contactInfo;
 
   await User.save();
 
   const updatedUser = {
-    userId: id,
-    profile_pic: User.profile_pic,
-    firstname: User.firstName,
-    lastname: User.lastName,
-    phonenumber: User.phoneNumber,
-    bio: User.Bio,
-    experience: User.experience,
-    education: User.education,
-    contactinfo: User.contactInfo,
-    role: User.role,
+    ...User._doc,
+    password: undefined,
+    forgetCode: undefined,
+    accessToken: undefined,
   };
 
   return res.status(200).json({
