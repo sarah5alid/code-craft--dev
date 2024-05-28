@@ -64,13 +64,11 @@ export const uploadVideos = asyncHandler(async (req, res, next) => {
   req.checkCourse.courseDuration += durationInMinutes;
   await req.checkCourse.save();
 
-  return res
-    .status(201)
-    .json({
-      success: true,
-      message: "video uploaded successfully!",
-      video: video,
-    });
+  return res.status(201).json({
+    success: true,
+    message: "video uploaded successfully!",
+    video: video,
+  });
 });
 
 //======================update
@@ -185,4 +183,16 @@ export const deleteSpecificVideo = asyncHandler(async (req, res, next) => {
   return res
     .status(200)
     .json({ success: true, message: "Video deleted Successfully!" });
+});
+
+//=================================all videos ==========================
+
+export const getAllVideos = asyncHandler(async (req, res, next) => {
+  const { courseId } = req.params;
+  const videos = await CourseContent.find({ course: courseId });
+
+  if (videos.length == 0) {
+    return next({ message: "No videos found", cause: 404 });
+  }
+  return res.status(200).json({ success: true, videos: videos });
 });

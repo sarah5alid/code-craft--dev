@@ -1,35 +1,20 @@
-/**  
- 
- 
- *get enrolled
-  *get in progress
 
-
- */
 
 import { Course } from "../../../DB/models/course-model.js";
 import userModel from "../../../DB/models/user-model.js";
 import { APIFeatures } from "../../utils/api-features.js";
 import { asyncHandler } from "../../utils/async-Handeller.js";
 
-
-
 export const getCoursePreview = asyncHandler(async (req, res, next) => {
   const { courseId } = req.params;
   const course = await Course.findOne({
     _id: courseId,
     isApproved: true,
-  })
-    .select(
-      "courseName desc level prerequisites courseDuration rate numOfVideos appliedPrice image"
-    )
-    .populate([
-      {
-        path: "vidoes",
-        select: "title",
-      },
-      { path: "addedBy", select: "firstName lastName" },
-    ]);
+  }).populate([
+    { path: "vidoes", select: "title" },
+    { path: "addedBy", select: "firstName lastName" },
+    { path: "categoryId", select: "name " },
+  ]);
 
   if (!course) return next(new Error("course not found", { cause: 404 }));
 
@@ -38,8 +23,8 @@ export const getCoursePreview = asyncHandler(async (req, res, next) => {
 
 export const updateRecentlyViewedCourses = asyncHandler(
   async (req, res, next) => {
-    const courseId = req.params.courseId; // Assuming courseId is part of the request parameters
-    const userId = req.authUser._id; // Assuming you have the authenticated user stored in req.authUser
+    const courseId = req.params.courseId; 
+    const userId = req.authUser._id; 
 
     // Update the user's recently viewed courses
     const user = await userModel.findByIdAndUpdate(userId, {
@@ -47,7 +32,7 @@ export const updateRecentlyViewedCourses = asyncHandler(
       new: true,
     });
 
-    console.log(user);
+    return res.status(200).json({ success: true });
   }
 );
 
@@ -55,13 +40,16 @@ export const getRecentlyViewedCourses = async (req, res, next) => {
   const userId = req.authUser._id;
 
   // Retrieve the user's recently viewed courses and populate the course details
-  const user = await userModel
-    .findById(userId)
-    .populate({
+  const user = await userModel.findById(userId).populate([
+    {
       path: "recentlyViewedCourses",
-      select:
-        "courseName desc level prerequisites courseDuration rate numOfVideos appliedPrice image",
-    });
+      select: "-vidoes",
+      populate: [
+        { path: "addedBy", select: "firstName lastName" },
+        { path: "categoryId", select: "name " },
+      ],
+    },
+  ]);
 
   if (!user || user.recentlyViewedCourses.length == 0) {
     return res
@@ -73,8 +61,6 @@ export const getRecentlyViewedCourses = async (req, res, next) => {
 
   return res.status(200).json({ success: true, recentlyViewedCourses });
 };
-
-
 
 export const getAllCourses = asyncHandler(async (req, res, next) => {
   const features = new APIFeatures(req.query, Course.find());

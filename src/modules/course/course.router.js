@@ -8,8 +8,9 @@ import * as courseSchema from "./course.Schemas.js";
 import { checkCourseInstructor } from "../../utils/checkCourseInstructor.js";
 
 import { validationMiddleware } from "../../middlewares/validation-middleware.js";
+import courseContentRouter  from "../course-content/course-content.router.js";
 const router = Router();
-
+router.use("/:courseId/Videos", courseContentRouter);
 router.post(
   "/uploadCourseInfo/:categoryId",
   authuntication(endPointsRoles.UPLOAD_COURSE),

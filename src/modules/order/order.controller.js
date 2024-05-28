@@ -1,5 +1,6 @@
 import cartModel from "../../../DB/models/cart-model.js";
 import couponModel from "../../../DB/models/coupon-model.js";
+import { Enrollment } from "../../../DB/models/course-enrollement.js";
 import orderModel from "../../../DB/models/order-model.js";
 import {
   confirmPaymentIntent,
@@ -235,6 +236,14 @@ export const stripeWebhookLocal = asyncHandler(async (req, res, next) => {
   await confirmedOrder.save();
 
   // enroll user in course
+
+  const courses = confirmedOrder.orderItems.map((item) => item.course);
+  const enrollments = courses.map((course) => ({
+    user: confirmedOrder.user,
+    course: course,
+  }));
+
+  await Enrollment.insertMany(enrollments);
 
   console.log(conformPaymentIntentDetails);
   res.status(200).json({ message: "webhook received" });

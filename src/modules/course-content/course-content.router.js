@@ -6,7 +6,10 @@ import { multerMiddleHost } from "../../middlewares/multer-middleware.js";
 import { allowedExtensions } from "../../utils/allowed-extentions.js";
 
 import { checkCourseInstructor } from "../../utils/checkCourseInstructor.js";
-const router = Router();
+
+import { systemRoles } from "../../utils/system-roles.js";
+import { accessVideo } from "../../utils/accessGranted.js";
+const router = Router({ mergeParams: true });
 
 router.post(
   "/uploadCourseVideos/:courseId",
@@ -30,6 +33,13 @@ router.delete(
   checkCourseInstructor(),
 
   contentController.deleteSpecificVideo
+);
+
+router.get(
+  "/",
+  authuntication(Object.values(systemRoles)),
+  accessVideo(),
+  contentController.getAllVideos
 );
 
 export default router;

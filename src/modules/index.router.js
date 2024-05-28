@@ -16,6 +16,9 @@ import couponRouter from "./Coupon/coupon.router.js";
 import cartRouter from "./Cart/cart.router.js";
 
 import orderRouter from "./order/order.router.js";
+
+
+import enrollementRouter from './user-enrollement/user-enrollement.router.js'
 export {
   authRouter,
   userRouter,
@@ -27,4 +30,5 @@ export {
   couponRouter,
   cartRouter,
   orderRouter,
+  enrollementRouter
 };
