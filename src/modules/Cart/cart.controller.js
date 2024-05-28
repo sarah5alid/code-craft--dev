@@ -94,7 +94,7 @@ export const removeFromcart = async (req, res, next) => {
 };
 //=======================get user cart ========================
 
-export const getUserCart = asyncHandler(async (req, res, next) => {
+export const userCart = asyncHandler(async (req, res, next) => {
   const userId = req.authUser._id;
   const cart = await cartModel.findOne({ userId });
 
