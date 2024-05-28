@@ -25,6 +25,11 @@ const cartSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
+        desc: { type: String, required: true },
+        image: {
+          id: { type: String, unique: true },
+          url: { type: String },
+        },
       },
     ],
     subTotal: {

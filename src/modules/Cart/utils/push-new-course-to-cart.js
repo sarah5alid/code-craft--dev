@@ -12,10 +12,9 @@ import { calculateSubTotal } from "./calculate-cart-sub-total.js";
 export async function pushNewcourse(cart, course) {
   cart?.courses.push({
     courseId: course._id,
-
     basePrice: course.appliedPrice,
     title: course.courseName,
-    image: course.image,
+    image: { id: course.image.id, url: course.image.url },
     desc: course.desc,
   });
 
