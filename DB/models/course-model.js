@@ -13,7 +13,7 @@ const courseSchema = new Schema(
       enum: ["All", "Beginner", "Intermediate", "Advanced"],
       required: true,
     },
-    language: { type: String, required: true },
+
     prerequisites: { type: String, required: true },
 
     //=================numbers====//
@@ -23,7 +23,7 @@ const courseSchema = new Schema(
     discount: { type: Number, default: 0 },
 
     appliedPrice: { type: Number, required: true },
-    rate: { type: Number, default: 0, min: 1, max: 5 },
+    rate: { type: Number, default: 0, min: 0, max: 5 },
 
     numOfVideos: {
       type: Number,
