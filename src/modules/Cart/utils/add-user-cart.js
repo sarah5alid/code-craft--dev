@@ -14,7 +14,6 @@ export async function addCart(userId, course) {
     courses: [
       {
         courseId: course._id,
-
         basePrice: course.appliedPrice,
         title: course.courseName,
         image: course.image,
