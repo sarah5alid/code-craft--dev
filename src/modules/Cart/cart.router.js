@@ -15,5 +15,11 @@ router.put(
   authuntication(Object.values(systemRoles)),
   cartController.removeFromcart
 );
+router.get(
+  "/userCart",
+  authuntication(Object.values(systemRoles)),
+  cartController.getUserCart
+);
+
 
 export default router;

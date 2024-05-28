@@ -17,6 +17,8 @@ export async function addCart(userId, course) {
 
         basePrice: course.appliedPrice,
         title: course.courseName,
+        image: course.image,
+        desc: course.desc,
       },
     ],
     subTotal: course.appliedPrice,

@@ -36,7 +36,7 @@ export const updatePassword = asyncHandler(async (req, res, next) => {
 //=========================  updated profile data===================================
 
 export const updateProfileData = asyncHandler(async (req, res, next) => {
-  //TO DO =>DATE OF BIRTH
+  
 
   const {
     firstName,

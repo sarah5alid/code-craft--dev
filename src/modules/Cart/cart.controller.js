@@ -16,7 +16,8 @@ export const addToCart = asyncHandler(async (req, res, next) => {
    */
 
   const course = await checkCourseExists(courseId);
-  if (course.status) return next({ message: course.message, cause: course.status });
+  if (course.status)
+    return next({ message: course.message, cause: course.status });
 
   /**
    * @check if user has a cart
@@ -49,9 +50,11 @@ export const addToCart = asyncHandler(async (req, res, next) => {
   if (!addedCourse) {
     return next({ message: "Course not added to cart", cause: 400 });
   }
-  return res
-    .status(201)
-    .json({ message: "Course added to cart successfully", data: userCart });
+  return res.status(201).json({
+    success: true,
+    message: "Course added to cart successfully",
+    data: userCart,
+  });
 });
 
 //=========================== remove from cart=======================
@@ -85,5 +88,19 @@ export const removeFromcart = async (req, res, next) => {
     await Cart.findByIdAndDelete(newCart._id);
   }
 
-  res.status(200).json({ message: "course removed from cart successfully" });
+  res
+    .status(200)
+    .json({ success: true, message: "course removed from cart successfully" });
 };
+//=======================get user cart ========================
+
+export const getUserCart = asyncHandler(async (req, res, next) => {
+  const userId = req.authUser._id;
+  const cart = await cartModel.findOne({ userId });
+
+  if (!cart) {
+    return next({ message: "User has no Cart", cause: 404 });
+  }
+
+  return res.status(200).json({ success: true, Cart: cart });
+});

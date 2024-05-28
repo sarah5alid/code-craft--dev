@@ -223,15 +223,18 @@ export const stripeWebhookLocal = asyncHandler(async (req, res, next) => {
   if (!confirmedOrder) {
     return next({ message: "Order not found", cause: 404 });
   }
+
+  const conformPaymentIntentDetails = await confirmPaymentIntent(
+    confirmedOrder.payment_intent
+  );
+
   confirmedOrder.isPaid = true;
   confirmedOrder.paidAt = DateTime.now().toFormat("yyyy-MM-dd HH:mm:ss");
   confirmedOrder.orderStatus = "Paid";
 
   await confirmedOrder.save();
 
-  const conformPaymentIntentDetails = await confirmPaymentIntent(
-    confirmedOrder.payment_intent
-  );
+  // enroll user in course
 
   console.log(conformPaymentIntentDetails);
   res.status(200).json({ message: "webhook received" });

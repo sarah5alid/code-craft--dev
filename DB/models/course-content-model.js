@@ -12,7 +12,8 @@ const courseContentSchema = new Schema(
     },
 
     duration: { type: Number },
-    isCompleted: { type: Boolean, default: false },
+   
+    order:{type:Number,required:true},
 
     course: { type: Types.ObjectId, ref: "Course", required: true },
   },

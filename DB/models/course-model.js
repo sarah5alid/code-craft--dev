@@ -10,10 +10,10 @@ const courseSchema = new Schema(
 
     level: {
       type: String,
-      enum: ["All","Beginner", "Intermediate", "Advanced"],
+      enum: ["All", "Beginner", "Intermediate", "Advanced"],
       required: true,
     },
-
+    language: { type: String, required: true },
     prerequisites: { type: String, required: true },
 
     //=================numbers====//
@@ -23,12 +23,7 @@ const courseSchema = new Schema(
     discount: { type: Number, default: 0 },
 
     appliedPrice: { type: Number, required: true },
-    rate: { type: Number, default: 0, min: 0, max: 5 },
-
-    progress: {
-      type: Number,
-      default: 0, // Initialize progress to 0%
-    },
+    rate: { type: Number, default: 0, min: 1, max: 5 },
 
     numOfVideos: {
       type: Number,
@@ -38,7 +33,7 @@ const courseSchema = new Schema(
     //image
     image: {
       id: { type: String, unique: true },
-      url: { type: String,  },
+      url: { type: String },
     },
     //booleans
 
@@ -53,8 +48,9 @@ const courseSchema = new Schema(
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
-// userSchema.virtual('coursesUploadedCount').get(function() {
-//   return this.coursesUploaded.length;
-// });
+courseSchema.pre("save", function (next) {
+  this.numOfVideos = this.vidoes.length;
+  next();
+});
 
 export const Course = mongoose.model("Course", courseSchema);

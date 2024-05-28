@@ -15,6 +15,8 @@ export async function pushNewcourse(cart, course) {
 
     basePrice: course.appliedPrice,
     title: course.courseName,
+    image: course.image,
+    desc: course.desc,
   });
 
   cart.subTotal = calculateSubTotal(cart.courses);
