@@ -5,6 +5,7 @@ import { asyncHandler } from "../../utils/async-Handeller.js";
 import cloudinary from "../../utils/cloudinary.js";
 import slugify from "slugify";
 import userModel from "../../../DB/models/user-model.js";
+import { APIFeatures } from "../../utils/api-features.js";
 
 export const uploadCourseInfo = asyncHandler(async (req, res, next) => {
   const { name, desc, level, prerequisites, discount, basePrice } = req.body;
@@ -192,3 +193,33 @@ export const updateCourseInfo = async (req, res, next) => {
 
 //   return res.status(204).json({ success: true, message: "Course deleted !" });
 // });
+
+//========================================get all courses for category============
+
+export const categoryCourses = asyncHandler(async (req, res, next) => {
+  const categoryId = req.params;
+
+  const features = new APIFeatures(
+    req.query,
+    Course.find(categoryId)
+      .select("-vidoes")
+      .populate([
+        { path: "addedBy", select: "firstName lastName" },
+        { path: "categoryId", select: "name " },
+      ])
+  );
+
+  features.filter().fields().sort().search().pagination();
+
+  const courses = await features.mongooseQuery;
+
+  if (courses.length == 0) {
+    return next(new Error("No courses found!", { cause: 404 }));
+  }
+
+  //const pageNumber = features.pageNumber;
+  const coursesNum = courses.length;
+  return res.status(200).json({ success: true, courses, coursesNum });
+});
+
+

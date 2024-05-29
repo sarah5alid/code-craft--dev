@@ -3,7 +3,7 @@ import authRouter from "./Auth/Auth.router.js";
 import userRouter from "./User/user.router.js";
 import categoryRouter from "./Category/category.router.js";
 
-import courseRouter from "./course/course.router.js";
+import courseRouter from "./Course/course.router.js";
 
 import courseContentRouter from "./course-content/course-content.router.js";
 
@@ -17,8 +17,7 @@ import cartRouter from "./Cart/cart.router.js";
 
 import orderRouter from "./order/order.router.js";
 
-
-import enrollementRouter from './user-enrollement/user-enrollement.router.js'
+import enrollementRouter from "./user-enrollement/user-enrollement.router.js";
 export {
   authRouter,
   userRouter,
@@ -30,5 +29,5 @@ export {
   couponRouter,
   cartRouter,
   orderRouter,
-  enrollementRouter
+  enrollementRouter,
 };

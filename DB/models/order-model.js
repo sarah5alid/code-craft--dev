@@ -8,7 +8,6 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
-    phoneNumber: { type: String, required: true },
     orderItems: [
       {
         title: { type: String, required: true },
@@ -24,7 +23,11 @@ const orderSchema = new mongoose.Schema(
     coupon: { type: mongoose.Schema.Types.ObjectId, ref: "Coupon" },
     totalPrice: { type: Number, required: true },
 
-    paymentMethod: { type: String, enum: ["Stripe", "Paymob"], required: true },
+    paymentMethod: {
+      type: String,
+      enum: ["Stripe", "Paymob", "MobileWallet"],
+      required: true,
+    },
     orderStatus: {
       type: String,
       enum: ["Pending", "Paid", "Cancelled", "Refunded"],

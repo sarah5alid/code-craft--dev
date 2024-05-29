@@ -15,7 +15,7 @@ import { getUserCart } from "../Cart/utils/get-user-cart.js";
 import { DateTime } from "luxon";
 export const createOrder = asyncHandler(async (req, res, next) => {
   // Destructure the request body
-  const { course, couponCode, paymentMethod, phoneNumber } = req.body;
+  const { course, couponCode, paymentMethod } = req.body;
   const { _id: user } = req.authUser;
 
   // Coupon code check
@@ -61,19 +61,16 @@ export const createOrder = asyncHandler(async (req, res, next) => {
     }
   }
 
-  let subTotal;
   if (coupon) {
-    subTotal = totalPrice - (totalPrice * coupon.couponAmount) / 100;
+    totalPrice -= (totalPrice * coupon.couponAmount) / 100;
   }
-  console.log(subTotal);
 
   // Create order
   const order = new orderModel({
     user,
     orderItems,
-    phoneNumber,
     coupon: coupon?._id,
-    totalPrice: subTotal,
+    totalPrice,
     paymentMethod,
   });
 
@@ -90,7 +87,7 @@ export const createOrder = asyncHandler(async (req, res, next) => {
 });
 //===============================================================
 export const convertFromCartToOrder = asyncHandler(async (req, res, next) => {
-  const { couponCode, paymentMethod, phoneNumber } = req.body;
+  const { couponCode, paymentMethod } = req.body;
 
   const { _id: user } = req.authUser;
   // cart items
@@ -126,19 +123,16 @@ export const convertFromCartToOrder = asyncHandler(async (req, res, next) => {
     }
   }
 
-  let subTotal;
   if (coupon) {
-    subTotal = totalPrice - (totalPrice * coupon.couponAmount) / 100;
+    totalPrice -= (totalPrice * coupon.couponAmount) / 100;
   }
-  console.log(subTotal);
 
   // create order
   const order = new orderModel({
     user,
     orderItems,
-    phoneNumber,
     coupon: coupon?._id,
-    totalPrice: subTotal,
+    totalPrice,
     paymentMethod,
   });
 

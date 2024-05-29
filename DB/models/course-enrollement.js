@@ -9,14 +9,13 @@ const enrollmentSchema = new mongoose.Schema({
   },
   enrollmentDate: { type: Date, default: Date.now },
 
-  status: { type: String, enum: ["Enrolled", "In Progress", "Completed"], default: "Enrolled" },
+  status: {
+    type: String,
+    enum: [ "In Progress", "Completed"],
+    default: "In Progress",
+  },
   progress: { type: Number, default: 0 }, // Track overall course progress
-  lessons: [{ 
-    lessonId: { type: mongoose.Schema.Types.ObjectId, ref: "CourseContent" },
-    isCompleted: { type: Boolean, default: false },
-  }]
+  lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: "CourseContent" }],
 });
 
 export const Enrollment = mongoose.model("Enrollment", enrollmentSchema);
-
-      

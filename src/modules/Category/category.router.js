@@ -5,7 +5,10 @@ import * as categoryController from "./category.controller.js";
 import * as categorySchema from "./category.Schemas.js";
 import { validationMiddleware } from "../../middlewares/validation-middleware.js";
 import { systemRoles } from "../../utils/system-roles.js";
+import  courseRouter  from "../Course/course.router.js";
 const router = Router();
+
+router.use("/:categoryId/", courseRouter);
 router.post(
   "/addCategory",
   authuntication(endPointsRoles.ADD_CATEGORY),
