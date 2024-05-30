@@ -6,7 +6,10 @@ import { CourseContent } from "../../../DB/models/course-content-model.js";
 
 export const uploadVideos = asyncHandler(async (req, res, next) => {
   const { title } = req.body;
-
+  const currentVideoCount = await CourseContent.countDocuments({
+    course: req.checkCourse._id,
+  });
+  console.log(currentVideoCount);
   const checkTitle = await CourseContent.findOne({
     course: req.checkCourse._id,
     title: title,
@@ -24,9 +27,10 @@ export const uploadVideos = asyncHandler(async (req, res, next) => {
   const content = {
     title,
     slug,
+    order: currentVideoCount + 1,
     course: req.checkCourse._id,
   };
-
+  
   const video = await CourseContent.create(content);
 
   req.savedDocuments = { model: CourseContent, _id: video._id };
@@ -159,7 +163,7 @@ export const deleteSpecificVideo = asyncHandler(async (req, res, next) => {
 
   const checkVideo = await CourseContent.findById(videoId);
   if (!checkVideo) return next(new Error("video not found", { cause: 404 }));
-
+  const orderToDelete = checkVideo.order;
   req.checkCourse.vidoes = req.checkCourse.vidoes.filter(
     (videoid) => videoid.toString() !== videoId
   );
@@ -180,6 +184,12 @@ export const deleteSpecificVideo = asyncHandler(async (req, res, next) => {
     return next(new Error("Error while deleting"), { cause: 500 });
   }
 
+  // Decrement the order of all subsequent videos in the same course
+  await CourseContent.updateMany(
+    { course: req.checkCourse._id, order: { $gt: orderToDelete } },
+    { $inc: { order: -1 } }
+  );
+
   return res
     .status(200)
     .json({ success: true, message: "Video deleted Successfully!" });
@@ -189,7 +199,7 @@ export const deleteSpecificVideo = asyncHandler(async (req, res, next) => {
 
 export const getAllVideos = asyncHandler(async (req, res, next) => {
   const { courseId } = req.params;
-  const videos = await CourseContent.find({ course: courseId });
+  const videos = await CourseContent.find({ course: courseId }).sort("order");
 
   if (videos.length == 0) {
     return next({ message: "No videos found", cause: 404 });

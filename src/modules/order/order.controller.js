@@ -1,6 +1,6 @@
 import cartModel from "../../../DB/models/cart-model.js";
 import couponModel from "../../../DB/models/coupon-model.js";
-import { Enrollment } from "../../../DB/models/course-enrollement.js";
+import { Enrollment } from "../../../DB/models/course-enrollement-model.js";
 import orderModel from "../../../DB/models/order-model.js";
 import {
   confirmPaymentIntent,

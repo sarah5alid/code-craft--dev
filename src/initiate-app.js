@@ -22,6 +22,7 @@ export const initiateApp = async (app, express) => {
   app.use("/Cart", routers.cartRouter);
   app.use("/Order", routers.orderRouter);
   app.use("/Enroll", routers.enrollementRouter);
+  app.use("/Review", routers.reviewRouter);
   app.all("*", (req, res, next) => {
     return next(new Error("page not found"));
   });

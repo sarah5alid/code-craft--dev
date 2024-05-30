@@ -18,6 +18,7 @@ import cartRouter from "./Cart/cart.router.js";
 import orderRouter from "./order/order.router.js";
 
 import enrollementRouter from "./user-enrollement/user-enrollement.router.js";
+import reviewRouter from "./Reviews/review.router.js";
 export {
   authRouter,
   userRouter,
@@ -30,4 +31,5 @@ export {
   cartRouter,
   orderRouter,
   enrollementRouter,
+  reviewRouter,
 };

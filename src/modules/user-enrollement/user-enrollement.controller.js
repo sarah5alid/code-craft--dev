@@ -1,4 +1,4 @@
-import { Enrollment } from "../../../DB/models/course-enrollement.js";
+import { Enrollment } from "../../../DB/models/course-enrollement-model.js";
 import { Course } from "../../../DB/models/course-model.js";
 import { APIFeatures } from "../../utils/api-features.js";
 import { asyncHandler } from "../../utils/async-Handeller.js";

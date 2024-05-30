@@ -6,7 +6,7 @@ import { allowedExtensions } from "../../utils/allowed-extentions.js";
 import { validationMiddleware } from "../../middlewares/validation-middleware.js";
 
 import * as userController from "./user.controller.js";
-import * as userSchemas from "./user.Schemas.js";
+import * as userSchemas from "./user.Schema.js";
 const router = Router();
 
 router.post(

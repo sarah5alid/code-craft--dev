@@ -4,7 +4,7 @@ import { endPointsRoles } from "./course.endpoints-roles.js";
 import { multerMiddleHost } from "../../middlewares/multer-middleware.js";
 import { allowedExtensions } from "../../utils/allowed-extentions.js";
 import * as courseController from "./course.controller.js";
-import * as courseSchema from "./course.Schemas.js";
+import * as courseSchema from "./course.Schema.js";
 import { checkCourseInstructor } from "../../utils/checkCourseInstructor.js";
 
 import { validationMiddleware } from "../../middlewares/validation-middleware.js";

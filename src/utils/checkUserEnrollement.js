@@ -1,4 +1,4 @@
-import { Enrollment } from "../../DB/models/course-enrollement.js";
+import { Enrollment } from "../../DB/models/course-enrollement-model.js";
 
 export async function checkEnrollemnt(user, course) {
   const allowed = await Enrollment.findOne({ user, course });
