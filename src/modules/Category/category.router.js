@@ -8,7 +8,6 @@ import { systemRoles } from "../../utils/system-roles.js";
 import  courseRouter  from "../Course/course.router.js";
 const router = Router();
 
-router.use("/:categoryId/", courseRouter);
 router.post(
   "/addCategory",
   authuntication(endPointsRoles.ADD_CATEGORY),
@@ -30,5 +29,7 @@ router.get(
   authuntication(Object.values(systemRoles)),
   categoryController.getALlCategories
 );
+
+router.use("/:categoryId/", courseRouter);
 
 export default router;
