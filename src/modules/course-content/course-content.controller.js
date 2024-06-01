@@ -30,7 +30,7 @@ export const uploadVideos = asyncHandler(async (req, res, next) => {
     order: currentVideoCount + 1,
     course: req.checkCourse._id,
   };
-  
+
   const video = await CourseContent.create(content);
 
   req.savedDocuments = { model: CourseContent, _id: video._id };
@@ -199,7 +199,9 @@ export const deleteSpecificVideo = asyncHandler(async (req, res, next) => {
 
 export const getAllVideos = asyncHandler(async (req, res, next) => {
   const { courseId } = req.params;
-  const videos = await CourseContent.find({ course: courseId }).sort("order");
+  const videos = await CourseContent.find({ course: courseId })
+    .sort("order")
+    .populate({ path: "course", select: "courseName image" });
 
   if (videos.length == 0) {
     return next({ message: "No videos found", cause: 404 });
