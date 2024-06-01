@@ -137,7 +137,7 @@ export const updateCourseInfo = async (req, res, next) => {
   if (oldPublicId) {
     if (!req.file) return next({ cause: 400, message: "Image is required" });
 
-    const newPulicId = oldPublicId.split("Images/")[1];
+    const newPulicId = req.checkCourse.image.id.split("Images/")[1];
 
     const { secure_url } = await cloudinary().uploader.upload(req.file.path, {
       folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${req.checkCourse.categoryId}/${addedBy}/${req.checkCourse._id}/Images`,
@@ -221,5 +221,3 @@ export const categoryCourses = asyncHandler(async (req, res, next) => {
   const coursesNum = courses.length;
   return res.status(200).json({ success: true, courses, coursesNum });
 });
-
-
