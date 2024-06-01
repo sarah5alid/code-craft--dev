@@ -203,7 +203,7 @@ export const payWithStripe = asyncHandler(async (req, res, next) => {
   });
   order.payment_intent = paymentIntent.id;
   await order.save();
-  return res.status(200).json({ checkOutSession, paymentIntent });
+  return res.status(200).json({ success: true, checkOutSession, paymentIntent });
 });
 
 //========================
