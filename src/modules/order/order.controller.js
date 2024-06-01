@@ -83,7 +83,9 @@ export const createOrder = asyncHandler(async (req, res, next) => {
     );
   }
 
-  res.status(201).json({ success: true, message: "Order created successfully", order });
+  res
+    .status(201)
+    .json({ success: true, message: "Order created successfully", order });
 });
 //===============================================================
 export const convertFromCartToOrder = asyncHandler(async (req, res, next) => {
@@ -147,7 +149,9 @@ export const convertFromCartToOrder = asyncHandler(async (req, res, next) => {
     );
   }
 
-  res.status(201).json({ success: true, message: "Order created successfully", order });
+  res
+    .status(201)
+    .json({ success: true, message: "Order created successfully", order });
 });
 //=========================================pay with stripe===================
 
@@ -203,7 +207,9 @@ export const payWithStripe = asyncHandler(async (req, res, next) => {
   });
   order.payment_intent = paymentIntent.id;
   await order.save();
-  return res.status(200).json({ success: true, checkOutSession, paymentIntent });
+  return res
+    .status(200)
+    .json({ success: true, checkOutSession, paymentIntent });
 });
 
 //========================
@@ -236,8 +242,9 @@ export const stripeWebhookLocal = asyncHandler(async (req, res, next) => {
     user: confirmedOrder.user,
     course: course,
   }));
-
-  await Enrollment.insertMany(enrollments);
+  console.log(enrollments);
+  const newEnroll = await Enrollment.insertMany(enrollments);
+  console.log(newEnroll);
 
   console.log(conformPaymentIntentDetails);
   res.status(200).json({ message: "webhook received" });

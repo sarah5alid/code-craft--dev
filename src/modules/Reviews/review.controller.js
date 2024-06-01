@@ -94,3 +94,7 @@ export const removeComment = asyncHandler(async (req, res, next) => {
     review,
   });
 });
+
+
+//get course reviews
+
