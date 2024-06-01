@@ -1,5 +1,4 @@
-
-
+import { Enrollment } from "../../../DB/models/course-enrollement-model.js";
 import { Course } from "../../../DB/models/course-model.js";
 import userModel from "../../../DB/models/user-model.js";
 import { APIFeatures } from "../../utils/api-features.js";
@@ -23,8 +22,8 @@ export const getCoursePreview = asyncHandler(async (req, res, next) => {
 
 export const updateRecentlyViewedCourses = asyncHandler(
   async (req, res, next) => {
-    const courseId = req.params.courseId; 
-    const userId = req.authUser._id; 
+    const courseId = req.params.courseId;
+    const userId = req.authUser._id;
 
     // Update the user's recently viewed courses
     const user = await userModel.findByIdAndUpdate(userId, {
@@ -73,7 +72,34 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
     return next(new Error("No courses found!", { cause: 404 }));
   }
 
-  //const pageNumber = features.pageNumber;
+  const iDs = courses.map((course) => course._id);
+
+  const enrollments = await Enrollment.find({ course: { $in: iDs } });
+
+  const enrollmentMap = iDs.reduce((map, id) => {
+    map[id] = { enrolled: 0, completed: 0 };
+    return map;
+  }, {});
+
+  enrollments.forEach((enrollment) => {
+    if (enrollmentMap[enrollment.course]) {
+      enrollmentMap[enrollment.course].enrolled += 1;
+      if (enrollment.status === "Completed") {
+        enrollmentMap[enrollment.course].completed += 1;
+      }
+    }
+  });
+
+  const coursesWithEnrollment = courses.map((course) => ({
+    ...course.toObject(),
+    enrolledUsers: enrollmentMap[course._id].enrolled,
+    completedUsers: enrollmentMap[course._id].completed,
+  }));
+
   const coursesNum = courses.length;
-  return res.status(200).json({ success: true, courses, coursesNum });
+  return res.status(200).json({
+    success: true,
+    coursesWithEnrollment,
+    coursesNum,
+  });
 });

@@ -7,7 +7,7 @@ export const userCourses = asyncHandler(async (req, res, next) => {
   const { userId: _id } = req.authUser;
   const features = new APIFeatures(
     req.query,
-    Enrollment.find().populate([
+    Enrollment.find({ user: userId }).populate([
       {
         path: "course",
         select: "-vidoes",
