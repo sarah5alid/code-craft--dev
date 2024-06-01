@@ -27,7 +27,7 @@ const cartSchema = new mongoose.Schema(
         },
         desc: { type: String, required: true },
         image: {
-          id: { type: String, unique: true },
+          id: { type: String },
           url: { type: String },
         },
       },
