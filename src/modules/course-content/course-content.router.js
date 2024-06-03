@@ -31,7 +31,6 @@ router.delete(
   "/deleteSpceficVideo/:courseId/:videoId",
   authuntication(endPointsRoles.DELETE_COURSE),
   checkCourseInstructor(),
-
   contentController.deleteSpecificVideo
 );
 
