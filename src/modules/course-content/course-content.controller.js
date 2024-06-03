@@ -203,8 +203,6 @@ export const getAllVideos = asyncHandler(async (req, res, next) => {
     .sort("order")
     .populate({ path: "course", select: "courseName image" });
 
-  if (videos.length == 0) {
-    return next({ message: "No videos found", cause: 404 });
-  }
+
   return res.status(200).json({ success: true, videos: videos });
 });
