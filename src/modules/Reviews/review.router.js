@@ -14,11 +14,7 @@ router.post(
   reviewController.addReview
 );
 
-router.put(
-  "/removeRate/:reviewId",
-  authuntication(Object.values(systemRoles)),
-  reviewController.removeRating
-);
+
 router.put(
   "/removeComment/:reviewId",
   authuntication(Object.values(systemRoles)),
