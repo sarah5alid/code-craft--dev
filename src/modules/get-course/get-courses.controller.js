@@ -6,6 +6,7 @@ import { asyncHandler } from "../../utils/async-Handeller.js";
 
 export const getCoursePreview = asyncHandler(async (req, res, next) => {
   const { courseId } = req.params;
+  const userId = req.authUser._id;
   const course = await Course.findOne({
     _id: courseId,
     isApproved: true,
@@ -17,7 +18,14 @@ export const getCoursePreview = asyncHandler(async (req, res, next) => {
 
   if (!course) return next(new Error("course not found", { cause: 404 }));
 
-  return res.status(200).json({ success: true, course: course });
+  let isEnrolled = false;
+  const enrolled = await Enrollment.findOne({ user: userId, course: courseId });
+
+  if (enrolled) isEnrolled = true;
+
+  return res
+    .status(200)
+    .json({ success: true, course: course,isEnrolled });
 });
 
 export const updateRecentlyViewedCourses = asyncHandler(

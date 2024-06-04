@@ -54,27 +54,6 @@ export const addReview = asyncHandler(async (req, res, next) => {
   });
 });
 
-// Remove rating
-export const removeRating = asyncHandler(async (req, res, next) => {
-  const { reviewId } = req.params;
-
-  const review = await reviewModel.findById(reviewId);
-  if (!review) {
-    return next({ message: "review not found", cause: 404 });
-  }
-
-  const deleted = await reviewModel.findOneAndDelete({ _id: reviewId });
-  if (!deleted) {
-    return next({ message: "fail to remove rate", cause: 500 });
-  }
-
-  return res.status(200).json({
-    success: true,
-    message: "Rating removed successfully",
-    review,
-  });
-});
-
 // Remove comment
 export const removeComment = asyncHandler(async (req, res, next) => {
   const { reviewId } = req.params;
@@ -98,6 +77,7 @@ export const removeComment = asyncHandler(async (req, res, next) => {
 
 export const courseReviews = asyncHandler(async (req, res, next) => {
   const { courseId } = req.params;
+  const userId = req.authUser._id;
   console.log(courseId);
   const course = await checkCourseExists(courseId);
 
@@ -105,14 +85,24 @@ export const courseReviews = asyncHandler(async (req, res, next) => {
     return next({ message: course.message, cause: course.status });
   }
 
-  const reviews = await reviewModel.findOne({ courseId });
+  const reviews = await reviewModel
+    .find({ courseId })
+    .populate({ path: "userId", select: "firstName lastName profile_pic" });
 
   if (!reviews) {
     return next({ message: "no reviews found fot this course", cause: 404 });
   }
 
+  let userReview = undefined;
+  for (const review of reviews) {
+    if (review.userId._id.toString() == userId.toString()) {
+      userReview = review;
+      break;
+    }
+  }
   return res.status(200).json({
     success: true,
     reviews,
+    userReview,
   });
 });
