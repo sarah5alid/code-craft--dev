@@ -11,6 +11,12 @@ router.get(
   enrollementController.userCourses
 );
 
+router.get(
+  "/:courseId/courseProgress",
+  authuntication(Object.values(systemRoles)),
+  enrollementController.getCourseProgress
+);
+
 router.put(
   "/:courseId/:videoId/updateProgress",
   authuntication(Object.values(systemRoles)),

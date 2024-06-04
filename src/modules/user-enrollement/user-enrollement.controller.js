@@ -69,3 +69,23 @@ export const markVideoCompleted = asyncHandler(async (req, res, next) => {
     courseEnrolled,
   });
 });
+
+
+export const getCourseProgress = asyncHandler(async (req, res, next) => {
+  const { courseId } = req.params;
+  const userId = req.authUser._id;
+
+  const courseEnrolled = await Enrollment.findOne({
+    user: userId,
+    course: courseId,
+  });
+
+  if (!courseEnrolled) {
+    return next({ message: "course not found", cause: 409 });
+  }
+
+  return res.json({
+    success: true,
+    courseEnrolled,
+  });
+});
