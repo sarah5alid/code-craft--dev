@@ -2,6 +2,7 @@ import { asyncHandler } from "../../utils/async-Handeller.js";
 
 import { checkEnrollemnt } from "../../utils/checkUserEnrollement.js";
 import reviewModel from "../../../DB/models/review-model.js";
+import { checkCourseExists } from "../../utils/checkCourseExistence.js";
 
 export const addReview = asyncHandler(async (req, res, next) => {
   const { _id: userId } = req.authUser;
@@ -95,6 +96,23 @@ export const removeComment = asyncHandler(async (req, res, next) => {
   });
 });
 
+export const courseReviews = asyncHandler(async (req, res, next) => {
+  const { courseId } = req.params;
 
-//get course reviews
+  const course = await checkCourseExists(courseId);
 
+  if (course.status) {
+    return next({ message: course.message, cause: course.cause });
+  }
+
+  const reviews = await reviewModel.findOne({ courseId });
+
+  if (!reviews) {
+    return next({ message: "no reviews found fot this course", cause: 404 });
+  }
+
+  return res.status(200).json({
+    success: true,
+    reviews,
+  });
+});

@@ -24,4 +24,10 @@ router.put(
   authuntication(Object.values(systemRoles)),
   reviewController.removeComment
 );
+
+router.get(
+  "/courseReview",
+  authuntication(Object.values(systemRoles)),
+  reviewController.courseReviews
+);
 export default router;
