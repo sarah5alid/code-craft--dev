@@ -26,7 +26,7 @@ router.put(
 );
 
 router.get(
-  "/courseReview",
+  "/courseReview/:courseId",
   authuntication(Object.values(systemRoles)),
   reviewController.courseReviews
 );

@@ -98,11 +98,11 @@ export const removeComment = asyncHandler(async (req, res, next) => {
 
 export const courseReviews = asyncHandler(async (req, res, next) => {
   const { courseId } = req.params;
-
+  console.log(courseId);
   const course = await checkCourseExists(courseId);
 
   if (course.status) {
-    return next({ message: course.message, cause: course.cause });
+    return next({ message: course.message, cause: course.status });
   }
 
   const reviews = await reviewModel.findOne({ courseId });
