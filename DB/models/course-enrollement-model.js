@@ -11,7 +11,7 @@ const enrollmentSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: [ "In Progress", "Completed"],
+    enum: ["In Progress", "Completed"],
     default: "In Progress",
   },
   progress: { type: Number, default: 0 }, // Track overall course progress

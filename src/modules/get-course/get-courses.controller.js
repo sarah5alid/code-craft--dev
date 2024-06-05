@@ -23,9 +23,7 @@ export const getCoursePreview = asyncHandler(async (req, res, next) => {
 
   if (enrolled) isEnrolled = true;
 
-  return res
-    .status(200)
-    .json({ success: true, course: course,isEnrolled });
+  return res.status(200).json({ success: true, course: course, isEnrolled });
 });
 
 export const updateRecentlyViewedCourses = asyncHandler(
@@ -104,10 +102,22 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
     completedUsers: enrollmentMap[course._id].completed,
   }));
 
+  const filteredCourses = coursesWithEnrollment.filter(
+    (course) => course.enrolledUsers > 0
+  );
+
+  const sortedCoursesByEnrolled = filteredCourses.sort(
+    (a, b) => b.enrolledUsers - a.enrolledUsers
+  );
+
+  // Get the top 10 courses
+  const top10Courses = sortedCoursesByEnrolled.slice(0, 10);
+
   const coursesNum = courses.length;
   return res.status(200).json({
     success: true,
     coursesWithEnrollment,
     coursesNum,
+    top10Courses,
   });
 });

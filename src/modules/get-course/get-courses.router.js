@@ -6,9 +6,7 @@ import { authuntication } from "../../middlewares/auth-middleware.js";
 import { endPointsRoles } from "./get-endpints-roles.js";
 import { systemRoles } from "../../utils/system-roles.js";
 
-const router = Router({mergeParams:true});
-
-
+const router = Router({ mergeParams: true });
 
 router.get(
   "/coursePreview/:courseId",

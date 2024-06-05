@@ -221,3 +221,5 @@ export const categoryCourses = asyncHandler(async (req, res, next) => {
   const coursesNum = courses.length;
   return res.status(200).json({ success: true, courses, coursesNum });
 });
+
+
