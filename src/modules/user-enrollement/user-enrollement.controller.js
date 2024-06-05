@@ -70,19 +70,17 @@ export const userCourses = asyncHandler(async (req, res, next) => {
       index ===
       self.findIndex((c) => c._id.toString() === course._id.toString())
   );
-
-  const recommendedNum = uniqueRecommendedCourses.length;
+  const top10UniqueRecommendedCourses = uniqueRecommendedCourses.slice(0, 10);
+  const recommendedNum = top10UniqueRecommendedCourses.length;
 
   const coursesNum = courses.length;
-  return res
-    .status(200)
-    .json({
-      success: true,
-      courses,
-      uniqueRecommendedCourses,
-      recommendedNum,
-      coursesNum,
-    });
+  return res.status(200).json({
+    success: true,
+    courses,
+    top10UniqueRecommendedCourses,
+    recommendedNum,
+    coursesNum,
+  });
 });
 
 export const markVideoCompleted = asyncHandler(async (req, res, next) => {
