@@ -68,14 +68,54 @@ export const getRecentlyViewedCourses = async (req, res, next) => {
 };
 
 export const getAllCourses = asyncHandler(async (req, res, next) => {
-  const features = new APIFeatures(req.query, Course.find());
+  const { categories, rating, level, price, isApproved } = req.query;
+  
+  const filter = {};
 
-  features.filter().fields().sort().search().pagination();
+  const splitCategories = categories && categories.split(',');
+  if (Array.isArray(splitCategories) && splitCategories.length) {
+    filter.categoryId = {
+      $in: splitCategories,
+    };
+  }
 
+  const splitLevel = level && level.split(',');
+  if (Array.isArray(splitLevel) && splitLevel.length) {
+     filter.level = {
+      $in: splitLevel,
+    };
+  }
+
+  if (typeof isApproved === 'boolean') {
+    filter.isApproved = isApproved;
+  }
+
+  if (typeof price === 'string' && price.length) {
+    const [start, end] = price.split(':').map(v => Number(v));
+    if (start >= 0 && end) filter.basePrice = { $gte: start, $lte: end };
+    else if (start >= 0) filter.basePrice = { $gte: start, $lte: start + 1 };
+  }
+
+  const nRating = Number(rating);
+  if (Number.isNaN(nRating) === false && nRating > 0) {
+    filter.rating = nRating;
+  }
+
+  const features = new APIFeatures(
+    req.query,
+    Course.find(filter)
+  );
+
+  features.fields().sort().pagination();
   const courses = await features.mongooseQuery;
-
+  
   if (courses.length == 0) {
-    return next(new Error("No courses found!", { cause: 404 }));
+    return res.status(200).json({
+      success: true,
+      coursesWithEnrollment: [],
+      coursesNum: 0,
+      top10Courses: [],
+    });
   }
 
   const iDs = courses.map((course) => course._id);

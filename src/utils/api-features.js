@@ -102,7 +102,7 @@ export class APIFeatures {
     if (this.query.page <= 0) this.query.page = 1;
     let pageNumber = this.query.page * 1 || 1;
     let limit = 8;
-    let skip = (pageNumber - 1) * limit;
+    let skip = Math.max(0, (pageNumber - 1) * limit);
     this.pageNumber = pageNumber;
     this.mongooseQuery.skip(skip).limit(limit);
 
