@@ -34,7 +34,11 @@ export const addToCart = asyncHandler(async (req, res, next) => {
 
     return res
       .status(201)
-      .json({ message: "Course added to cart successfully", data: newCart });
+      .json({
+        success: true,
+        message: "Course added to cart successfully",
+        data: newCart,
+      });
   }
 
   /**
