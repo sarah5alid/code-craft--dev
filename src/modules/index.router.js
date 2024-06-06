@@ -19,6 +19,7 @@ import orderRouter from "./order/order.router.js";
 
 import enrollementRouter from "./user-enrollement/user-enrollement.router.js";
 import reviewRouter from "./Reviews/review.router.js";
+import contactUsRouter from "./contact-us/contact-us.router.js";
 export {
   authRouter,
   userRouter,
@@ -32,4 +33,5 @@ export {
   orderRouter,
   enrollementRouter,
   reviewRouter,
+  contactUsRouter,
 };

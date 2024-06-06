@@ -23,4 +23,10 @@ router.put(
   enrollementController.markVideoCompleted
 );
 
+router.post(
+  "/:courseId/freeEnroll",
+  authuntication(Object.values(systemRoles)),
+  enrollementController.freeCourseEnroll
+);
+
 export default router;

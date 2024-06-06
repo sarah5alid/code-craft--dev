@@ -85,7 +85,7 @@ export const removeFromcart = async (req, res, next) => {
 
   /**@check If the cart's courses array is empty we will delete the cart. */
   if (newCart.courses.length === 0) {
-    await Cart.findByIdAndDelete(newCart._id);
+    await cartModel.findByIdAndDelete(newCart._id);
   }
 
   res

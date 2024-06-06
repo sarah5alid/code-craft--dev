@@ -11,11 +11,23 @@ export const getCoursePreview = asyncHandler(async (req, res, next) => {
     _id: courseId,
     isApproved: true,
   }).populate([
-    { path: "vidoes", select: "title" },
+    { path: "vidoes", select: "title video.url order " },
     { path: "addedBy", select: "firstName lastName" },
-    { path: "categoryId", select: "name " },
+    { path: "categoryId", select: "name" },
   ]);
+  let courseObject = course.toObject();
 
+  // Create a new array to store processed vidoes
+  if (courseObject.vidoes) {
+    courseObject.vidoes = courseObject.vidoes.map((video) => {
+      if (video.order === 1) {
+        return { title: video.title, url: video.video.url };
+      }
+      return { title: video.title };
+    });
+  }
+
+  console.log(courseObject);
   if (!course) return next(new Error("course not found", { cause: 404 }));
 
   let isEnrolled = false;
@@ -23,7 +35,9 @@ export const getCoursePreview = asyncHandler(async (req, res, next) => {
 
   if (enrolled) isEnrolled = true;
 
-  return res.status(200).json({ success: true, course: course, isEnrolled });
+  return res
+    .status(200)
+    .json({ success: true, course: courseObject, isEnrolled });
 });
 
 export const updateRecentlyViewedCourses = asyncHandler(
@@ -69,29 +83,30 @@ export const getRecentlyViewedCourses = async (req, res, next) => {
 
 export const getAllCourses = asyncHandler(async (req, res, next) => {
   const { categories, rating, level, price, isApproved, keyword } = req.query;
-  
+
   const filter = {};
 
-  const splitCategories = categories && decodeURIComponent(categories).split(',');
+  const splitCategories =
+    categories && decodeURIComponent(categories).split(",");
   if (Array.isArray(splitCategories) && splitCategories.length) {
     filter.categoryId = {
       $in: splitCategories,
     };
   }
 
-  const splitLevel = level && decodeURIComponent(level).split(',');
+  const splitLevel = level && decodeURIComponent(level).split(",");
   if (Array.isArray(splitLevel) && splitLevel.length) {
-     filter.level = {
+    filter.level = {
       $in: splitLevel,
     };
   }
 
-  if (typeof isApproved === 'boolean') {
+  if (typeof isApproved === "boolean") {
     filter.isApproved = isApproved;
   }
 
-  if (typeof price === 'string' && price.length) {
-    const [start, end] = price.split(':').map(v => Number(v));
+  if (typeof price === "string" && price.length) {
+    const [start, end] = price.split(":").map((v) => Number(v));
     if (start >= 0 && end) filter.basePrice = { $gte: start, $lte: end };
     else if (start >= 0) filter.basePrice = { $gte: start, $lte: start + 1 };
   }
@@ -101,19 +116,15 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
     filter.rating = nRating;
   }
 
-  if (typeof keyword === 'string' && keyword.length) {
-    filter.courseName = { $regex: decodeURIComponent(keyword), '$options': 'i' };
-
+  if (typeof keyword === "string" && keyword.length) {
+    filter.courseName = { $regex: decodeURIComponent(keyword), $options: "i" };
   }
 
-  const features = new APIFeatures(
-    req.query,
-    Course.find(filter)
-  );
+  const features = new APIFeatures(req.query, Course.find(filter));
 
   features.fields().sort().pagination();
   const courses = await features.mongooseQuery;
-  
+
   if (courses.length == 0) {
     return res.status(200).json({
       success: true,

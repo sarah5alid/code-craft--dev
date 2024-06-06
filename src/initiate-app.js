@@ -23,6 +23,7 @@ export const initiateApp = async (app, express) => {
   app.use("/Order", routers.orderRouter);
   app.use("/Enroll", routers.enrollementRouter);
   app.use("/Review", routers.reviewRouter);
+  app.use("/contactUs", routers.contactUsRouter);
   app.all("*", (req, res, next) => {
     return next(new Error("page not found"));
   });

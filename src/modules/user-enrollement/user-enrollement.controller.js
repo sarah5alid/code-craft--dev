@@ -2,12 +2,14 @@ import { Enrollment } from "../../../DB/models/course-enrollement-model.js";
 import { Course } from "../../../DB/models/course-model.js";
 import { APIFeatures } from "../../utils/api-features.js";
 import { asyncHandler } from "../../utils/async-Handeller.js";
+import { checkCourseExists } from "../../utils/checkCourseExistence.js";
+import { checkEnrollemnt } from "../../utils/checkUserEnrollement.js";
 
 export const userCourses = asyncHandler(async (req, res, next) => {
   const { _id: userId } = req.authUser;
   const features = new APIFeatures(
     req.query,
-    Enrollment.find({ user: userId }).populate([
+    courseEnrolled.find({ user: userId }).populate([
       {
         path: "course",
         select: "-vidoes",
@@ -30,12 +32,14 @@ export const userCourses = asyncHandler(async (req, res, next) => {
   }
 
   // Extract course IDs, category IDs, and instructor IDs from the user's enrolled courses
-  const enrolledCourseIds = courses.map((enrollment) => enrollment.course._id);
+  const enrolledCourseIds = courses.map(
+    (courseEnrolled) => courseEnrolled.course._id
+  );
   const categoryIds = courses.map(
-    (enrollment) => enrollment.course.categoryId._id
+    (courseEnrolled) => courseEnrolled.course.categoryId._id
   );
   const instructorIds = courses.map(
-    (enrollment) => enrollment.course.addedBy._id
+    (courseEnrolled) => courseEnrolled.course.addedBy._id
   );
 
   // Fetch recommended courses based on user interests (categories) excluding already enrolled courses
@@ -88,14 +92,22 @@ export const markVideoCompleted = asyncHandler(async (req, res, next) => {
 
   const userId = req.authUser._id;
 
-  const courseEnrolled = await Enrollment.findOne({
-    user: userId,
-    course: courseId,
-  });
-  if (!courseEnrolled) {
-    return next({ message: "course not found", cause: 409 });
+  const course = await checkCourseExists(courseId);
+  if (course.status) {
+    return next({
+      message: course.message,
+      cause: course.cause,
+    });
   }
 
+  const courseEnrolled = await checkEnrollemnt(userId, course._id);
+
+  if (courseEnrolled.cause) {
+    return next({
+      message: courseEnrolled.message,
+      cause: courseEnrolled.cause,
+    });
+  }
   if (!courseEnrolled.lessons.includes(videoId)) {
     courseEnrolled.lessons.push(videoId);
 
@@ -125,17 +137,70 @@ export const getCourseProgress = asyncHandler(async (req, res, next) => {
   const { courseId } = req.params;
   const userId = req.authUser._id;
 
-  const courseEnrolled = await Enrollment.findOne({
-    user: userId,
-    course: courseId,
-  }).po;
+  const course = await checkCourseExists(courseId);
+  if (course.status) {
+    return next({
+      message: course.message,
+      cause: course.cause,
+    });
+  }
 
-  if (!courseEnrolled) {
-    return next({ message: "course not found", cause: 409 });
+  const courseEnrolled = await checkEnrollemnt(userId, course._id);
+
+  if (courseEnrolled.cause) {
+    return next({
+      message: courseEnrolled.message,
+      cause: courseEnrolled.cause,
+    });
   }
 
   return res.json({
     success: true,
     courseEnrolled,
+  });
+});
+
+//==========================Enroll for free===================
+
+export const freeCourseEnroll = asyncHandler(async (req, res, next) => {
+  const userId = req.authUser._id;
+
+  const { courseId } = req.params;
+
+  const course = await checkCourseExists(courseId);
+  if (course.status) {
+    return next({
+      message: course.message,
+      cause: course.cause,
+    });
+  }
+
+  const courseEnrolled = await checkEnrollemnt(userId, course._id);
+  console.log(courseEnrolled);
+
+  if (!courseEnrolled.cause) {
+    return next({
+      message: "You already enrolled",
+      cause: 400,
+    });
+  }
+  if (course.appliedPrice !== 0) {
+    return next({
+      message: "You cannot being enrolled",
+      cause: 409,
+    });
+  }
+
+  const newEnroll = await Enrollment.create({ user: userId, course: courseId });
+
+  req.savedDocuments = { model: Enrollment, _id: newEnroll._id };
+
+  if (!newEnroll) {
+    return next({ message: "Error while enrollment", cause: 409 });
+  }
+  return res.json({
+    success: true,
+    message: "You enrolled in this course",
+    newEnroll,
   });
 });
