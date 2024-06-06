@@ -68,18 +68,18 @@ export const getRecentlyViewedCourses = async (req, res, next) => {
 };
 
 export const getAllCourses = asyncHandler(async (req, res, next) => {
-  const { categories, rating, level, price, isApproved } = req.query;
+  const { categories, rating, level, price, isApproved, keyword } = req.query;
   
   const filter = {};
 
-  const splitCategories = categories && categories.split(',');
+  const splitCategories = categories && decodeURIComponent(categories).split(',');
   if (Array.isArray(splitCategories) && splitCategories.length) {
     filter.categoryId = {
       $in: splitCategories,
     };
   }
 
-  const splitLevel = level && level.split(',');
+  const splitLevel = level && decodeURIComponent(level).split(',');
   if (Array.isArray(splitLevel) && splitLevel.length) {
      filter.level = {
       $in: splitLevel,
@@ -99,6 +99,11 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
   const nRating = Number(rating);
   if (Number.isNaN(nRating) === false && nRating > 0) {
     filter.rating = nRating;
+  }
+
+  if (typeof keyword === 'string' && keyword.length) {
+    filter.courseName = { $regex: decodeURIComponent(keyword), '$options': 'i' };
+
   }
 
   const features = new APIFeatures(
