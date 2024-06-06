@@ -5,6 +5,7 @@ import { asyncHandler } from "../../utils/async-Handeller.js";
 import { checkCourseExists } from "../../utils/checkCourseExistence.js";
 import { checkEnrollemnt } from "../../utils/checkUserEnrollement.js";
 
+const courseEnrolled = Enrollment; 
 export const userCourses = asyncHandler(async (req, res, next) => {
   const { _id: userId } = req.authUser;
   const features = new APIFeatures(
@@ -26,9 +27,10 @@ export const userCourses = asyncHandler(async (req, res, next) => {
   const courses = await features.mongooseQuery;
 
   if (courses.length == 0) {
-    return next(
-      new Error("You are not enrolled in courses yet!", { cause: 404 })
-    );
+      return res.status(200).json({
+      success: true,
+      courses,
+    });
   }
 
   // Extract course IDs, category IDs, and instructor IDs from the user's enrolled courses
