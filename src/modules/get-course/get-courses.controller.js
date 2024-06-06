@@ -100,9 +100,9 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
       $in: splitLevel,
     };
   }
-
-  if (typeof isApproved === "boolean") {
-    filter.isApproved = isApproved;
+  
+  if (isApproved === 'true' || isApproved === 'false') {
+    filter.isApproved = isApproved === 'true';
   }
 
   if (typeof price === "string" && price.length) {
