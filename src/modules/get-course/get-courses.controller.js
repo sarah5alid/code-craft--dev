@@ -100,7 +100,7 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
       $in: splitLevel,
     };
   }
-  
+
   if (isApproved === 'true' || isApproved === 'false') {
     filter.isApproved = isApproved === 'true';
   }
@@ -111,9 +111,9 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
     else if (start >= 0) filter.basePrice = { $gte: start, $lte: start + 1 };
   }
 
-  const nRating = Number(rating);
-  if (Number.isNaN(nRating) === false && nRating > 0) {
-    filter.rating = nRating;
+  const rate = Number(rating);
+  if (Number.isNaN(rate) === false && rate > 0) {
+    filter.rate = rate;
   }
 
   if (typeof keyword === "string" && keyword.length) {
