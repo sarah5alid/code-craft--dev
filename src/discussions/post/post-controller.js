@@ -99,10 +99,8 @@ export const viewPosts = asyncHandler(async (req, res, next) => {
 
   features.filter().search().sort().fields().pagination();
   const posts = await features.mongooseQuery;
-  if (posts.length === 0)
-    return next({ message: "there's no posts yet", cause: 404 });
-
-  return res.status(200).json({ success: true, posts });
+  const count = await postModel.countDocuments();
+  return res.status(200).json({ success: true, posts, count });
 });
 
 export const singlePost = asyncHandler(async (req, res, next) => {
@@ -120,7 +118,6 @@ export const singlePost = asyncHandler(async (req, res, next) => {
 });
 
 //delete post
-
 export const deletePost = asyncHandler(async (req, res, next) => {
   const userId = req.authUser._id;
 
