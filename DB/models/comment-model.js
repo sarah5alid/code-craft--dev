@@ -3,10 +3,9 @@ import { Schema, Types, model } from "mongoose";
 const commentSchema = new Schema(
   {
     content: { type: String, required: true },
-    addedBy: { type: Types.ObjectId, ref: "user" },
+    addedBy: { type: Types.ObjectId, ref: "User" },
     image: { id: { type: String }, url: { type: String } },
-
-    postId: { type: Types.ObjectId, ref: "post" },
+    postId: { type: Types.ObjectId, ref: "Post" },
     numberOfLikes: { type: Number, default: 0, min: 0 },
   },
   { timestamps: true }
