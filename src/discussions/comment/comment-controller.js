@@ -31,11 +31,22 @@ export const addComment = asyncHandler(async (req, res, next) => {
 
   await comment.save();
 
-  post.numberOfComments += 1;
+  post.numberOfComments = await commentModel.countDocuments({ postId });
+
   await post.save();
+
+  ;
+
   return res
     .status(201)
-    .json({ success: true, message: "comment added successfully", comment });
+    .json({
+      success: true, message: "comment added successfully", comment: await commentModel
+    .findById(comment._id)
+    .select("content numberOfLikes createdAt image")
+    .populate({
+      path: "addedBy",
+      select: "firstName lastName profile_pic -_id",
+    }),  post });
 });
 
 export const updateComment = asyncHandler(async (req, res, next) => {
@@ -89,7 +100,7 @@ export const postComments = asyncHandler(async (req, res, next) => {
       })
   );
 
-  features.filter().sort();
+  features.filter().sort().dynamicPagination();
   const comments = await features.mongooseQuery;
 
   return res.status(200).json({ success: true, comments });

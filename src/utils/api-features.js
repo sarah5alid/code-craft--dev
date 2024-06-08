@@ -109,6 +109,15 @@ export class APIFeatures {
     return this; //function chain
   }
 
+  dynamicPagination() {
+    const skip = Math.max(this.query.skip, 0);
+    // Default limit is 8, Max limit is 100.
+    const limit = Math.min(this.query.limit || 8, 100);
+    this.mongooseQuery.skip(skip).limit(limit);
+    console.log({ skip, limit });
+    return this; //function chain
+  }
+
   sort() {
     if (!this.query.sort) {
       this.mongooseQuery = this.mongooseQuery.sort({ createdAt: -1 });
@@ -141,7 +150,7 @@ export class APIFeatures {
     console.log("filter");
     let filterObj = { ...this.query };
 
-    let excludedFields = ["page", "sort", "fields", "keyword"];
+    let excludedFields = ["page", "sort", "fields", "keyword", "skip", "limit"];
     excludedFields.forEach((val) => {
       delete filterObj[val];
     });
