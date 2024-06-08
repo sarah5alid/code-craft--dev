@@ -31,7 +31,7 @@ export const likeOrUnlike = asyncHandler(async (req, res, next) => {
     await document.save();
     return res
       .status(200)
-      .json({ message: "unLike Done", count: document.numberOfLikes });
+      .json({ message: "unLike Done", document, success: true });
   }
   // create like
   // create like document in likes collection
@@ -42,7 +42,7 @@ export const likeOrUnlike = asyncHandler(async (req, res, next) => {
 
   res
     .status(200)
-    .json({ message: "Like Done", like, count: document.numberOfLikes });
+    .json({ message: "Like Done", like, document, success: true });
 });
 
 export const getUserLikesHistory = asyncHandler(async (req, res, next) => {
