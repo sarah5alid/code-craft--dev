@@ -6,12 +6,8 @@ import { allowedExtensions } from "../../utils/allowed-extentions.js";
 import * as commentcontroller from "./comment-controller.js";
 const router = Router({ mergeParams: true });
 
-router.post(
-  "/:postId/addComment",
-  authuntication(Object.values(systemRoles)),
-  multerMiddleHost(allowedExtensions.image).single("image"),
-  commentcontroller.addComment
-);
+
+router.get("/all", commentcontroller.postComments);
 
 router.put(
   "/updateComment/:commentId",
@@ -20,11 +16,17 @@ router.put(
   commentcontroller.updateComment
 );
 
-router.get("/all", commentcontroller.postComments);
 router.delete(
-  "/:commentId",
+  "/deleteComment/:commentId",
   authuntication(Object.values(systemRoles)),
   commentcontroller.deleteComment
+);
+
+router.post(
+  "/:postId/addComment",
+  authuntication(Object.values(systemRoles)),
+  multerMiddleHost(allowedExtensions.image).single("image"),
+  commentcontroller.addComment
 );
 
 export default router;

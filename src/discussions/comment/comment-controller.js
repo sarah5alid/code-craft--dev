@@ -35,8 +35,6 @@ export const addComment = asyncHandler(async (req, res, next) => {
 
   await post.save();
 
-  ;
-
   return res
     .status(201)
     .json({
@@ -64,6 +62,7 @@ export const updateComment = asyncHandler(async (req, res, next) => {
   if (comment.addedBy.toString() !== _id.toString()) {
     return next({ message: "Not Authorized", cause: 403 });
   }
+
   comment.content = content ? content : comment.content;
   await comment.save();
 
@@ -96,7 +95,7 @@ export const postComments = asyncHandler(async (req, res, next) => {
       .select("content numberOfLikes createdAt image")
       .populate({
         path: "addedBy",
-        select: "firstName lastName profile_pic -_id",
+        select: "firstName lastName profile_pic _id",
       })
   );
 
@@ -115,18 +114,23 @@ export const deleteComment = asyncHandler(async (req, res, next) => {
     { _id: commentId },
     { new: true }
   );
+
   if (!comment) {
     return next({
       message: " error while deleting or comment not found",
       cause: 404,
     });
   }
+
   if (comment.addedBy.toString() !== userId.toString()) {
-    console.log("d");
     return next({ message: "Not Authorized", cause: 403 });
   }
-
-  if (comment.image) {
+  
+  const post = await postModel.findById(comment.postId);
+  post.numberOfComments = await commentModel.countDocuments({ postId: comment.postId });
+  await post.save()
+  
+  if (comment.image && comment.image.id) {
     await cloudinary.uploader.destroy(comment.image.id);
     const post = await postModel.findById(comment.postId);
 
@@ -149,5 +153,5 @@ export const deleteComment = asyncHandler(async (req, res, next) => {
 
   return res
     .status(200)
-    .json({ success: true, message: "comment deleted", comment });
+    .json({ success: true, message: "comment deleted", comment, post });
 });
