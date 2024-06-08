@@ -37,7 +37,12 @@ export const addPost = asyncHandler(async (req, res, next) => {
   req.folder = `${process.env.CLOUD_FOLDER_NAME}/Posts/${userId}/${post._id}`;
   return res
     .status(201)
-    .json({ success: true, message: "post published", post });
+    .json({ success: true, message: "post published", post: await postModel
+      .findById(post._id)
+      .select("createdAt content  numberOfLikes numberOfComments  images")
+      .populate([
+        { path: "addedBy", select: "firstName lastName profile_pic _id" },
+      ]) });
 });
 
 export const updatePost = asyncHandler(async (req, res, next) => {
@@ -97,7 +102,7 @@ export const viewPosts = asyncHandler(async (req, res, next) => {
       ])
   );
 
-  features.filter().search().sort().fields().pagination();
+  features.filter().search().sort().fields().dynamicPagination();
   const posts = await features.mongooseQuery;
   const count = await postModel.countDocuments();
   return res.status(200).json({ success: true, posts, count });
@@ -135,7 +140,7 @@ export const deletePost = asyncHandler(async (req, res, next) => {
     return next({ message: "Not Authorized", cause: 403 });
   }
 
-  if (post.images) {
+  if (post.images && post.images.length) {
     await cloudinary.api.delete_resources_by_prefix(
       `${process.env.CLOUD_FOLDER_NAME}/Posts/${userId}/${post._id}`
     );
