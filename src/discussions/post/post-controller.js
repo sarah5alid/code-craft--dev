@@ -102,7 +102,7 @@ export const viewPosts = asyncHandler(async (req, res, next) => {
   if (posts.length === 0)
     return next({ message: "there's no posts yet", cause: 404 });
 
-  return res.status(200).json({ succes: true, posts });
+  return res.status(200).json({ success: true, posts });
 });
 
 export const singlePost = asyncHandler(async (req, res, next) => {
@@ -116,7 +116,7 @@ export const singlePost = asyncHandler(async (req, res, next) => {
     });
   if (!post) return next({ message: "post not found", cause: 404 });
 
-  return res.status(200).json({ succes: true, post });
+  return res.status(200).json({ success: true, post });
 });
 
 //delete post
