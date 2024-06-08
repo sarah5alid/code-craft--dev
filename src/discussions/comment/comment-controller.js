@@ -27,8 +27,9 @@ export const addComment = asyncHandler(async (req, res, next) => {
       }
     );
     comment.image = { id: public_id, url: secure_url };
-    await comment.save();
   }
+
+  await comment.save();
 
   post.numberOfComments += 1;
   await post.save();
@@ -70,8 +71,8 @@ export const updateComment = asyncHandler(async (req, res, next) => {
 });
 
 export const postComments = asyncHandler(async (req, res, next) => {
-  const { postId } = req.params;
-  console.log(postId);
+  const { postId } = req.query;
+
   const post = await postModel.findById(postId);
   if (!post) {
     return next({ message: "post not found", cause: 404 });
@@ -87,12 +88,9 @@ export const postComments = asyncHandler(async (req, res, next) => {
         select: "firstName lastName profile_pic -_id",
       })
   );
+
   features.filter().sort();
   const comments = await features.mongooseQuery;
-
-  if (comments.length == 0) {
-    return next({ message: "post has no comments", cause: 404 });
-  }
 
   return res.status(200).json({ success: true, comments });
 });
