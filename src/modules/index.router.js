@@ -20,6 +20,10 @@ import orderRouter from "./order/order.router.js";
 import enrollementRouter from "./user-enrollement/user-enrollement.router.js";
 import reviewRouter from "./Reviews/review.router.js";
 import contactUsRouter from "./contact-us/contact-us.router.js";
+
+import postRouter from "../discussions/post/post-router.js";
+import commentRouter from "../discussions/comment/comment-router.js";
+import likeRouter from "../discussions/like/like-router.js";
 export {
   authRouter,
   userRouter,
@@ -34,4 +38,7 @@ export {
   enrollementRouter,
   reviewRouter,
   contactUsRouter,
+  postRouter,
+  commentRouter,
+  likeRouter,
 };

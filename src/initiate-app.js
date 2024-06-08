@@ -24,6 +24,10 @@ export const initiateApp = async (app, express) => {
   app.use("/Enroll", routers.enrollementRouter);
   app.use("/Review", routers.reviewRouter);
   app.use("/contactUs", routers.contactUsRouter);
+  app.use("/Post", routers.postRouter);
+  app.use("/Comment", routers.commentRouter);
+  app.use("/Like", routers.likeRouter);
+
   app.all("*", (req, res, next) => {
     return next(new Error("page not found"));
   });

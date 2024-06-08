@@ -12,20 +12,50 @@ import { APIFeatures } from "../../utils/api-features.js";
 import { asyncHandler } from "../../utils/async-Handeller.js";
 
 //================1)approve==================================
+
 export const approveCourse = asyncHandler(async (req, res, next) => {
   const { courseId } = req.params;
 
   const course = await Course.findById(courseId);
-  if (!course) return next(new Error("Course not found", { cause: 404 }));
-  if (course.isApproved == true)
-    return next({ message: "Course already approved", cause: 409 });
+  if (!course) {
+    return next(new Error("Course not found", { cause: 404 }));
+  }
+
+  if (
+    course.edits &&
+    Object.keys(course.edits).some((key) => course.edits[key] !== null)
+  ) {
+    console.log(course.edits);
+    const { _id, id, ...edits } = course.edits;
+
+    const newCourse = await Course.findByIdAndUpdate(
+      { _id: courseId },
+      { edits, edits: null },
+      { new: true }
+    );
+
+    // Clear the edits field properly
+    course.edits = {};
+
+    console.log(course.edits);
+    console.log({ course: newCourse });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Course approved", course: newCourse });
+  } else {
+    if (course.isApproved) {
+      return next({ cause: 400, message: "Course is already approved" });
+    }
+  }
 
   course.isApproved = true;
+
   await course.save();
 
   return res
     .status(200)
-    .json({ success: true, message: "course approved", course: course });
+    .json({ success: true, message: "Course approved", course: course });
 });
 
 //===================2)disApprove================================
@@ -37,13 +67,18 @@ export const disApproveCourse = asyncHandler(async (req, res, next) => {
   if (!course) return next({ message: "course not found", cause: 404 });
   if (course.isApproved == false)
     return next({ message: "Course already disapproved", cause: 409 });
-
+  if (
+    course.edits &&
+    Object.keys(course.edits).some((key) => course.edits[key] !== null)
+  ) {
+    course.edits.isApproved = false;
+  }
   course.isApproved = false;
   await course.save();
 
   return res
     .status(200)
-    .json({ success: true, message: "course approved", course: course });
+    .json({ success: true, message: "course disapproved", course: course });
 });
 
 //==================3)get all users
@@ -63,7 +98,6 @@ export const getAllUsers = asyncHandler(async (req, res, next) => {
   }
   const usersNum = users.length;
 
- 
   //const pageNumber = features.pageNumber;
 
   return res.status(200).json({ success: true, users, usersNum });

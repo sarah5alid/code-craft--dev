@@ -46,7 +46,6 @@ export const uploadCourseInfo = asyncHandler(async (req, res, next) => {
     prerequisites,
     basePrice,
     appliedPrice,
-
     categoryId,
     addedBy,
   };
@@ -90,76 +89,87 @@ export const uploadCourseInfo = asyncHandler(async (req, res, next) => {
 });
 
 //===================update
-
-export const updateCourseInfo = async (req, res, next) => {
+export const updateCourseInfo = asyncHandler(async (req, res, next) => {
   const { name, desc, level, prerequisites, discount, basePrice, oldPublicId } =
     req.body;
-
   const updatedBy = req.authUser._id;
 
-  if (name) {
-    if (name == req.checkCourse.courseName) {
-      return next({
-        cause: 400,
-        message: "Please enter different course name from the existing one.",
-      });
-    }
-
+  // Check if a different course name is provided
+  if (name && name !== req.checkCourse.courseName) {
     const isNameDuplicated = await Course.findOne({ courseName: name });
     if (isNameDuplicated) {
-      return next({ cause: 409, message: "Course name is already exist" });
+      return next({ cause: 409, message: "Course name already exists" });
     }
-
-    req.checkCourse.courseName = name;
-    req.checkCourse.slug = slugify(name, "-");
-
-    await req.checkCourse.save();
-
-    console.log(req.checkCourse.courseName);
   }
 
-  req.checkCourse.desc = desc ? desc : req.checkCourse.desc;
-  req.checkCourse.level = level ? level : req.checkCourse.level;
-  req.checkCourse.prerequisites = prerequisites
-    ? prerequisites
-    : req.checkCourse.prerequisites;
-  req.checkCourse.basePrice = basePrice ? basePrice : req.checkCourse.basePrice;
+  // Initialize edits object if it doesn't exist
+  req.checkCourse.edits = req.checkCourse.edits || {};
 
-  const appliedPrice = basePrice - basePrice * ((discount || 0) / 100);
-  req.checkCourse.appliedPrice = appliedPrice
-    ? appliedPrice
-    : req.checkCourse.appliedPrice;
-
-  req.checkCourse.isApproved = false;
-
-  await req.checkCourse.save();
-
+  let fileData = {};
   if (oldPublicId) {
-    if (!req.file) return next({ cause: 400, message: "Image is required" });
+    if (!req.file) {
+      return next({ cause: 400, message: "Image is required" });
+    }
+    const newPublicId = req.checkCourse.image.id.split(`Images/`)[1]
+    const { secure_url} = await cloudinary.uploader.upload(
+      req.file.path,
+      {
+        folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${req.checkCourse.categoryId}/${req.authUser._id}/${req.checkCourse._id}/Images/edits`,
+        public_id:newPublicId
+      }
+    );
+    fileData.url = secure_url;
+    fileData.id = newPublicId
 
-    const newPulicId = req.checkCourse.image.id.split("Images/")[1];
-
-    const { secure_url } = await cloudinary().uploader.upload(req.file.path, {
-      folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${req.checkCourse.categoryId}/${addedBy}/${req.checkCourse._id}/Images`,
-
-      public_id: newPulicId,
-    });
-    req.checkCourse.image.url = secure_url;
-    req.checkCourse.image.id = newPulicId;
-    await req.checkCourse.save();
+    console.log(fileData); // Log fileData with its values
   }
 
-  req.checkCourse.updatedBy = updatedBy;
+  // Store the edits in the edits field
+  req.checkCourse.edits = {
+    courseName: name || req.checkCourse.courseName,
+    desc: desc || req.checkCourse.desc,
+    slug: name ? slugify(name, "-") : req.checkCourse.slug,
+    level: level || req.checkCourse.level,
+    image: fileData.url ? { ...fileData } : req.checkCourse.edits.image,
+    prerequisites: prerequisites || req.checkCourse.prerequisites,
+    basePrice: basePrice || req.checkCourse.basePrice,
+    discount: discount || req.checkCourse.discount,
+    appliedPrice: basePrice
+      ? basePrice - basePrice * ((discount || 0) / 100)
+      : req.checkCourse.appliedPrice,
+    updatedBy: updatedBy,
+  };
+
+  // Retain remaining fields from req.checkCourse to edits object
+  const remainingFields = [
+    "numOfVideos",
+    "rate",
+    "courseDuration",
+    "isDeleted",
+    "vidoes",
+    "addedBy",
+    "categoryId",
+  ];
+  remainingFields.forEach((field) => {
+    req.checkCourse.edits[field] = req.checkCourse[field];
+  });
+
+  // Clear the edits object if no changes were made
+  if (Object.keys(req.checkCourse.edits).length === 0) {
+    req.checkCourse.edits = null;
+  }
+  
 
   await req.checkCourse.save();
 
   res.status(200).json({
     success: true,
     message:
-      "Course information Updated Successfully, please contact our support to review the course",
+      "Course information updated successfully, please contact our support to review the course",
     data: req.checkCourse,
   });
-};
+});
+
 //=============================delete course===============
 
 // export const deleteCourse = asyncHandler(async (req, res, next) => {
@@ -221,5 +231,3 @@ export const categoryCourses = asyncHandler(async (req, res, next) => {
   const coursesNum = courses.length;
   return res.status(200).json({ success: true, courses, coursesNum });
 });
-
-

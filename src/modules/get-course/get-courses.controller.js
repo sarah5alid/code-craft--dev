@@ -27,7 +27,6 @@ export const getCoursePreview = asyncHandler(async (req, res, next) => {
     });
   }
 
-  console.log(courseObject);
   if (!course) return next(new Error("course not found", { cause: 404 }));
 
   let isEnrolled = false;
@@ -177,3 +176,9 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
     top10Courses,
   });
 });
+
+// get course preview for admin and instructor ==>
+
+  
+
+

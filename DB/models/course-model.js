@@ -2,7 +2,6 @@ import mongoose, { Schema, Types } from "mongoose";
 
 const courseSchema = new Schema(
   {
-    //strings
     courseName: { type: String, required: true, unique: true, trim: true },
 
     desc: { type: String, required: true, default: null },
@@ -13,10 +12,7 @@ const courseSchema = new Schema(
       enum: ["All", "Beginner", "Intermediate", "Advanced"],
       required: true,
     },
-
     prerequisites: { type: String, required: true },
-
-    //=================numbers====//
 
     courseDuration: { type: Number, required: true, default: 0 },
     basePrice: { type: Number, required: true },
@@ -30,21 +26,55 @@ const courseSchema = new Schema(
       default: 0,
     },
 
-    //image
     image: {
       id: { type: String, unique: true },
       url: { type: String },
     },
-    //booleans
 
     isApproved: { type: Boolean, default: false },
-    //IDs
+    isDeleted: { type: Boolean, default: false },
+
     addedBy: { type: Types.ObjectId, ref: "User", required: true },
     updatedBy: { type: Types.ObjectId, ref: "User" },
     categoryId: { type: Types.ObjectId, ref: "Category", required: true },
-    //array
+
     vidoes: [{ type: Schema.Types.ObjectId, ref: "CourseContent" }],
+
+    edits: {
+      type: {
+        courseName: { type: String, trim: true, default: null },
+        desc: { type: String, default: null },
+        slug: { type: String, default: null },
+        level: {
+          type: String,
+          enum: ["All", "Beginner", "Intermediate", "Advanced"],
+          default: null,
+        },
+        prerequisites: { type: String, default: null },
+        courseDuration: { type: Number, default: null },
+        basePrice: { type: Number, default: null },
+        discount: { type: Number, default: null },
+        appliedPrice: { type: Number, default: null },
+        rate: { type: Number, default: null, min: 0, max: 5 },
+        numOfVideos: { type: Number, default: null },
+        image: {
+          id: { type: String, default: null },
+          url: { type: String, default: null },
+        },
+        isApproved: { type: Boolean, default: null },
+        isDeleted: { type: Boolean, default: null },
+        addedBy: { type: Types.ObjectId, ref: "User", default: null },
+        updatedBy: { type: Types.ObjectId, ref: "User", default: null },
+        categoryId: { type: Types.ObjectId, ref: "Category", default: null },
+        vidoes: {
+          type: [{ type: Schema.Types.ObjectId, ref: "CourseContent" }],
+          default: null,
+        },
+      },
+      default: {},
+    },
   },
+
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 

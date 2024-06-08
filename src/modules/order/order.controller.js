@@ -18,6 +18,8 @@ export const createOrder = asyncHandler(async (req, res, next) => {
   const { course, couponCode, paymentMethod } = req.body;
   const { _id: user } = req.authUser;
 
+
+
   // Coupon code check
   let coupon = null;
   if (couponCode) {
@@ -39,6 +41,8 @@ export const createOrder = asyncHandler(async (req, res, next) => {
       cause: courseAvailability.status,
     });
   }
+
+  
 
   // Create order items
   const orderItems = [
