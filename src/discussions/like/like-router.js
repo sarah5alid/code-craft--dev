@@ -11,6 +11,12 @@ router.get(
   likesController.getUserLikesHistory
 );
 
+router.get(
+  "/userLikes",
+  authuntication(Object.values(systemRoles)),
+  likesController.getUserLikes
+);
+
 router.post(
   "/:likeDoneOnId",
   authuntication(Object.values(systemRoles)),
