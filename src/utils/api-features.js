@@ -141,6 +141,7 @@ export class APIFeatures {
           { desc: { $regex: this.query.keyword } },
           { firstName: { $regex: this.query.keyword } },
           { lastName: { $regex: this.query.keyword } },
+          { content: { $regex: this.query.keyword } },
         ],
       });
     }

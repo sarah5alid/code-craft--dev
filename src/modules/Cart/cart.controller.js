@@ -1,4 +1,5 @@
 import cartModel from "../../../DB/models/cart-model.js";
+import { Enrollment } from "../../../DB/models/course-enrollement-model.js";
 import { asyncHandler } from "../../utils/async-Handeller.js";
 import { checkCourseExists } from "../../utils/checkCourseExistence.js";
 import { addCart } from "./utils/add-user-cart.js";
@@ -10,6 +11,13 @@ import { pushNewcourse } from "./utils/push-new-course-to-cart.js";
 export const addToCart = asyncHandler(async (req, res, next) => {
   const { courseId } = req.body;
   const id = req.authUser._id;
+  const isEnrolled = await Enrollment.findOne({ course: courseId, user: id });
+  if (isEnrolled) {
+    return res.status(409).json({
+      success: true,
+      message: "You Already Enrolled",
+    });
+  }
 
   /**
    * @check if course exists
@@ -32,13 +40,11 @@ export const addToCart = asyncHandler(async (req, res, next) => {
   if (!userCart) {
     const newCart = await addCart(id, course);
 
-    return res
-      .status(201)
-      .json({
-        success: true,
-        message: "Course added to cart successfully",
-        data: newCart,
-      });
+    return res.status(201).json({
+      success: true,
+      message: "Course added to cart successfully",
+      data: newCart,
+    });
   }
 
   /**
