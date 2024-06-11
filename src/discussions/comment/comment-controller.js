@@ -43,7 +43,7 @@ export const addComment = asyncHandler(async (req, res, next) => {
     .select("content numberOfLikes createdAt image")
     .populate({
       path: "addedBy",
-      select: "firstName lastName profile_pic -_id",
+      select: "firstName lastName profile_pic _id",
     }),  post });
 });
 

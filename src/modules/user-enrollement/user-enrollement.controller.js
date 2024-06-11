@@ -5,12 +5,11 @@ import { asyncHandler } from "../../utils/async-Handeller.js";
 import { checkCourseExists } from "../../utils/checkCourseExistence.js";
 import { checkEnrollemnt } from "../../utils/checkUserEnrollement.js";
 
-const courseEnrolled = Enrollment; 
 export const userCourses = asyncHandler(async (req, res, next) => {
   const { _id: userId } = req.authUser;
   const features = new APIFeatures(
     req.query,
-    courseEnrolled.find({ user: userId }).populate([
+    Enrollment.find({ user: userId }).populate([
       {
         path: "course",
         select: "-vidoes",
@@ -27,7 +26,7 @@ export const userCourses = asyncHandler(async (req, res, next) => {
   const courses = await features.mongooseQuery;
 
   if (courses.length == 0) {
-      return res.status(200).json({
+    return res.status(200).json({
       success: true,
       courses,
     });
@@ -48,6 +47,7 @@ export const userCourses = asyncHandler(async (req, res, next) => {
   const recommendedByCategory = await Course.find({
     _id: { $nin: enrolledCourseIds },
     categoryId: { $in: categoryIds },
+    isApproved: true,
   })
     .select("-vidoes")
     .populate([
@@ -59,6 +59,7 @@ export const userCourses = asyncHandler(async (req, res, next) => {
   const recommendedByInstructor = await Course.find({
     _id: { $nin: enrolledCourseIds },
     addedBy: { $in: instructorIds },
+    isApproved: true,
   })
     .select("-vidoes")
     .populate([
