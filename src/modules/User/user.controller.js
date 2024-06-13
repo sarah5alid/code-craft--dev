@@ -155,9 +155,12 @@ export const deleteProfile_Pic = asyncHandler(async (req, res, next) => {
     `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${id}`
   );
   user.profile_pic = {
-    url: "https://res.cloudinary.com/dsx35oatb/image/upload/v1718281952/Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_mnxcpj.png",
-    id: "Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_mnxcpj"
-  }
+    url: "https://res.cloudinary.com/dsx35oatb/image/upload/v1718282507/Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_vz3o73.png",
+    id: "Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_vz3o73.png",
+  };
+
+  await user.save();
+
   return res.status(200).json({
     success: true,
     message: "profile picture removed ",
