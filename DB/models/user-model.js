@@ -39,12 +39,12 @@ const userSchema = new Schema(
       url: {
         type: String,
         default:
-          "https://res.cloudinary.com/dsx35oatb/image/upload/v1716410446/Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_ry6suu.png",
+          "https://res.cloudinary.com/dsx35oatb/image/upload/v1718282507/Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_vz3o73.png",
       },
       id: {
         type: String,
         default:
-          "Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_ry6suu",
+          "Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_vz3o73",
       },
     },
 
