@@ -160,7 +160,7 @@ export const deleteProfile_Pic = asyncHandler(async (req, res, next) => {
   };
 
   await user.save();
-  console.log("ssss");
+
   return res.status(200).json({
     success: true,
     message: "profile picture removed ",
