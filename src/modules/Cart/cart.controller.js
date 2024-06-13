@@ -15,7 +15,11 @@ export const addToCart = asyncHandler(async (req, res, next) => {
   if (isEnrolled) {
     return res.status(409).json({
       success: true,
+<<<<<<< HEAD
       message: "you already Enrolled",
+=======
+      message: "You Already Enrolled",
+>>>>>>> be6f283506ee834110da776aa724bc78ae502085
     });
   }
 

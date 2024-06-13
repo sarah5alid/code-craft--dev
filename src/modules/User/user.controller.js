@@ -36,8 +36,6 @@ export const updatePassword = asyncHandler(async (req, res, next) => {
 //=========================  updated profile data===================================
 
 export const updateProfileData = asyncHandler(async (req, res, next) => {
-  
-
   const {
     firstName,
     lastName,
@@ -82,6 +80,10 @@ export const uploadProfile_Pic = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
   const User = await userModel.findById(id);
 
+  if (!req.file || !req.file.path) {
+    return next(new Error("No file provided", { cause: 400 }));
+  }
+
   //upload image on cloudinary
   const { public_id, secure_url } = await cloudinary.uploader.upload(
     req.file.path,
@@ -120,6 +122,10 @@ export const updateProfile_Pic = asyncHandler(async (req, res, next) => {
 
   //update image;
   if (req.body.oldPublicId) {
+    if (!req.file || !req.file.path) {
+      return next(new Error("No file provided", { cause: 400 }));
+    }
+
     const { secure_url, public_id } = await cloudinary.uploader.upload(
       req.file.path,
       {
@@ -144,15 +150,14 @@ export const deleteProfile_Pic = asyncHandler(async (req, res, next) => {
   const id = req.authUser._id;
   const user = await userModel.findById(id);
   await cloudinary.uploader.destroy(user.profile_pic.id);
+  console.log("sara");
   await cloudinary.api.delete_folder(
     `${process.env.CLOUD_FOLDER_NAME}/user/profilepics/${id}`
   );
   user.profile_pic = {
-    url: "https://res.cloudinary.com/dsx35oatb/image/upload/v1716410446/Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_ry6suu.png",
-    id: "Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_ry6suu",
-  };
-  await user.save();
-
+    url: "https://res.cloudinary.com/dsx35oatb/image/upload/v1718281952/Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_mnxcpj.png",
+    id: "Code-Craft/user/profilepics/defaults/Windows_10_Default_Profile_Picture.svg_mnxcpj"
+  }
   return res.status(200).json({
     success: true,
     message: "profile picture removed ",
