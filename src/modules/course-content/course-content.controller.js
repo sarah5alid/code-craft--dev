@@ -130,18 +130,15 @@ export const updateVideos = asyncHandler(async (req, res, next) => {
 
     const durationInSeconds = result.duration;
 
-    // Convert duration to minutes
     const durationInMinutes = durationInSeconds / 60;
 
-    // Subtract the current video's duration from the course duration
     req.checkCourse.courseDuration -= checkVideo.duration;
 
-    // Update video details with the new cloudinary result
     checkVideo.video.url = result.secure_url;
     checkVideo.video.id = result.public_id;
     checkVideo.duration = durationInMinutes;
     await checkVideo.save();
-    // Update course duration based on the changes made
+
     req.checkCourse.courseDuration += durationInMinutes;
 
     await req.checkCourse.save();
@@ -202,7 +199,6 @@ export const getAllVideos = asyncHandler(async (req, res, next) => {
   const videos = await CourseContent.find({ course: courseId })
     .sort("order")
     .populate({ path: "course", select: "courseName image" });
-
 
   return res.status(200).json({ success: true, videos: videos });
 });
