@@ -1,5 +1,6 @@
 import { Enrollment } from "../../../DB/models/course-enrollement-model.js";
 import { Course } from "../../../DB/models/course-model.js";
+import userModel from "../../../DB/models/user-model.js";
 import { APIFeatures } from "../../utils/api-features.js";
 import { asyncHandler } from "../../utils/async-Handeller.js";
 import { checkCourseExists } from "../../utils/checkCourseExistence.js";
@@ -166,7 +167,7 @@ export const getCourseProgress = asyncHandler(async (req, res, next) => {
 //==========================Enroll for free===================
 
 export const freeCourseEnroll = asyncHandler(async (req, res, next) => {
-  const userId = req.authUser._id;
+  let userId = req.authUser._id;
 
   const { courseId } = req.params;
 
@@ -176,6 +177,17 @@ export const freeCourseEnroll = asyncHandler(async (req, res, next) => {
       message: course.message,
       cause: course.cause,
     });
+  }
+
+  if (req.body.email) {
+    const user = await userModel.findOne({ email: req.body.email });
+    if (!user /*|| user.role == "superAdmin"*/) {
+      return next({
+        message: "User not found or cannot being enrolled",
+        cause: 404,
+      });
+    }
+    userId = user._id;
   }
 
   const courseEnrolled = await checkEnrollemnt(userId, course._id);

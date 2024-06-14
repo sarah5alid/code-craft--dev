@@ -54,7 +54,10 @@ export const addToCart = asyncHandler(async (req, res, next) => {
   const checkCourse = await checkcourseIfExistsInCart(userCart, courseId);
 
   if (checkCourse) {
-    return next({ message: "Course already added to cart", cause: 400 });
+    return res.status(400).json({
+      success: true,
+      message: "Course Already added to cart",
+    });
   }
   const addedCourse = await pushNewcourse(userCart, course);
   if (!addedCourse) {

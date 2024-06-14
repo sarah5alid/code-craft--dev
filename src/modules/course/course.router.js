@@ -28,12 +28,12 @@ router.put(
   courseController.updateCourseInfo
 );
 
-// router.delete(
-//   "/deleteCourse/:courseId",
-//   authuntication(endPointsRoles.DELETE_COURSE),
-
-//   courseController.deleteCourse
-// );
+router.delete(
+  "/deleteCourse/:courseId",
+  authuntication(endPointsRoles.DELETE_COURSE),
+  checkCourseInstructor(),
+  courseController.deleteCourse
+);
 
 router.get("/", courseController.categoryCourses);
 export default router;

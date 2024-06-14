@@ -110,35 +110,40 @@ export const updateCourseInfo = asyncHandler(async (req, res, next) => {
     if (!req.file) {
       return next({ cause: 400, message: "Image is required" });
     }
-    const newPublicId = req.checkCourse.image.id.split(`Images/`)[1]
-    const { secure_url} = await cloudinary.uploader.upload(
-      req.file.path,
-      {
-        folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${req.checkCourse.categoryId}/${req.authUser._id}/${req.checkCourse._id}/Images/edits`,
-        public_id:newPublicId
-      }
-    );
+    const newPublicId = req.checkCourse.image.id.split(`Images/`)[1];
+    const { secure_url } = await cloudinary.uploader.upload(req.file.path, {
+      folder: `${process.env.CLOUD_FOLDER_NAME}/Categories/${req.checkCourse.categoryId}/${req.authUser._id}/${req.checkCourse._id}/Images/edits`,
+      public_id: newPublicId,
+    });
     fileData.url = secure_url;
-    fileData.id = newPublicId
+    fileData.id = newPublicId;
 
     console.log(fileData); // Log fileData with its values
   }
 
   // Store the edits in the edits field
   req.checkCourse.edits = {
-    courseName: name || req.checkCourse.courseName,
-    desc: desc || req.checkCourse.desc,
+    courseName: name ? name : req.checkCourse.courseName,
+    desc: desc ? desc : req.checkCourse.desc,
     slug: name ? slugify(name, "-") : req.checkCourse.slug,
-    level: level || req.checkCourse.level,
+    level: level ? level : req.checkCourse.level,
     image: fileData.url ? { ...fileData } : req.checkCourse.edits.image,
-    prerequisites: prerequisites || req.checkCourse.prerequisites,
-    basePrice: basePrice || req.checkCourse.basePrice,
-    discount: discount || req.checkCourse.discount,
+    prerequisites: prerequisites
+      ? prerequisites
+      : req.checkCourse.prerequisites,
+    basePrice: basePrice ? basePrice : req.checkCourse.basePrice,
+    discount: discount ? discount : req.checkCourse.discount,
     appliedPrice: basePrice
       ? basePrice - basePrice * ((discount || 0) / 100)
       : req.checkCourse.appliedPrice,
-    updatedBy: updatedBy,
+    updatedBy: updatedBy ? updatedBy : null,
+    isApproved: false,
   };
+
+  // req.checkCourse.edits = {
+  //   isApproved: false,
+  // };
+  await req.checkCourse.save();
 
   // Retain remaining fields from req.checkCourse to edits object
   const remainingFields = [
@@ -153,14 +158,20 @@ export const updateCourseInfo = asyncHandler(async (req, res, next) => {
   remainingFields.forEach((field) => {
     req.checkCourse.edits[field] = req.checkCourse[field];
   });
+  console.log("edits", req.checkCourse.edits);
 
-  // Clear the edits object if no changes were made
-  if (Object.keys(req.checkCourse.edits).length === 0) {
+  // Clear the edits object if every value is null
+  if (
+    req.checkCourse.edits &&
+    Object.keys(req.checkCourse.edits).every(
+      (key) => req.checkCourse.edits[key] === null
+    )
+  ) {
     req.checkCourse.edits = null;
   }
-  
 
   await req.checkCourse.save();
+  console.log("edits", req.checkCourse.edits);
 
   res.status(200).json({
     success: true,
@@ -172,37 +183,19 @@ export const updateCourseInfo = asyncHandler(async (req, res, next) => {
 
 //=============================delete course===============
 
-// export const deleteCourse = asyncHandler(async (req, res, next) => {
-//   const { courseId } = req.params;
+export const deleteCourse = asyncHandler(async (req, res, next) => {
+  const course = req.checkCourse;
+  const deletedCourse = await Course.findByIdAndDelete(course._id);
 
-//   const checkCourse = await Course.findById(courseId);
+  if (!deletedCourse) 
+    return next(new Error("error while deleting"), { cause: 500 });
 
-//   if (!checkCourse)
-//     return next(
-//       new Error("course you try to delete not found", { cause: 404 })
-//     );
+  await CourseContent.deleteMany({ course: course._id });
 
-//   if (
-//     req.authuser._id.toString() !== checkCourse.addedBy.toString() ||
-//     req.authuser._id.toString() !== systemRoles.SUPER_ADMIN
-//   ) {
-//     return next(
-//       new Error("you are not Authorized to delete this course", {
-//         cause: 400,
-//       })
-//     );
-//   }
-
-//   const deletedCourse = await Course.findByIdAndDelete(courseId);
-
-//   if (!deletedCourse)
-//     return next(new Error("error while deleting"), { cause: 500 });
-//   //ASK
-
-//   await CourseContent.deleteMany({ course: courseId });
-
-//   return res.status(204).json({ success: true, message: "Course deleted !" });
-// });
+  return res
+    .status(204)
+    .json({ success: true, message: "Course deleted successfully !" });
+});
 
 //========================================get all courses for category============
 
