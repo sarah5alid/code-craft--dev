@@ -11,6 +11,12 @@ router.get(
   adminController.getAllUsers
 );
 
+router.get(
+  "/getUsersStats",
+  authuntication(systemRoles.SUPER_ADMIN),
+  adminController.getUsersStats
+);
+
 router.patch(
   "/approvement/:courseId",
   authuntication(systemRoles.SUPER_ADMIN),

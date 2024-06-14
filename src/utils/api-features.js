@@ -158,8 +158,8 @@ export class APIFeatures {
 
     filterObj = JSON.stringify(filterObj);
     filterObj = filterObj.replace(
-      /(gt|gte|lt|lte|in|nin|eq|ne|regex)/g,
-      (match) => "$" + match
+      /("gt"|"gte"|"lt"|"lte"|"in"|"nin"|"eq"|"ne"|"regex")/g,
+      (match) => match[0] + "$" + match.slice(1)
     );
 
     filterObj = JSON.parse(filterObj);

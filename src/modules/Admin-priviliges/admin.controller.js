@@ -83,22 +83,35 @@ export const disApproveCourse = asyncHandler(async (req, res, next) => {
 
 //==================3)get all users
 
+export const getUsersStats = asyncHandler(async (req, res, next) => {
+  return res
+    .status(200)
+    .json({
+      success: true,
+      stats: {
+        total: await userModel.find().count(),
+        active: await userModel.find({ isActive: true }).count(),
+        deactivated: await userModel.find({ isDeleted: true }).count(),
+        banned: await userModel.find({ isBanned: true }).count(),
+      }
+    });
+});
+
+
 export const getAllUsers = asyncHandler(async (req, res, next) => {
   const features = new APIFeatures(
     req.query,
-    userModel.find({ isDeleted: false })
+    userModel.find()
   );
 
   features.filter().fields().sort().pagination().search();
 
   const users = await features.mongooseQuery;
-  console.log(users);
+
   if (users.length == 0) {
-    return next({ message: "No users found!", cause: 404 });
+    return next({ success: true, users});
   }
   const usersNum = users.length;
-
-  //const pageNumber = features.pageNumber;
 
   return res.status(200).json({ success: true, users, usersNum });
 });

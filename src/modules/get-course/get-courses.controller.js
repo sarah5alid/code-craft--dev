@@ -81,7 +81,7 @@ export const getRecentlyViewedCourses = async (req, res, next) => {
 };
 
 export const getAllCourses = asyncHandler(async (req, res, next) => {
-  const { categories, rating, level, price, isApproved, keyword } = req.query;
+  const { categories, rating, level, price, isApproved, keyword, enrolledUsers, completedUsers } = req.query;
 
   const filter = {};
 
@@ -110,6 +110,13 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
     else if (start >= 0) filter.basePrice = { $gte: start, $lte: start + 1 };
   }
 
+  if (enrolledUsers === true || enrolledUsers === 'true') {
+    filter._id = { $in :  await Enrollment.find().distinct('course')};
+  } else if (completedUsers === true || completedUsers === 'true') {
+    filter._id = { $in :  await Enrollment.find({status: 'Completed'}).distinct('course')};
+  }
+
+
   const rate = Number(rating);
   if (Number.isNaN(rate) === false && rate > 0) {
     filter.rate = rate;
@@ -118,7 +125,7 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
   if (typeof keyword === "string" && keyword.length) {
     filter.courseName = { $regex: decodeURIComponent(keyword), $options: "i" };
   }
-
+  const total = await Course.find(filter).count();
   const features = new APIFeatures(req.query, Course.find(filter));
 
   features.fields().sort().pagination();
@@ -130,6 +137,7 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
       coursesWithEnrollment: [],
       coursesNum: 0,
       top10Courses: [],
+      total: 0,
     });
   }
 
@@ -174,6 +182,7 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
     coursesWithEnrollment,
     coursesNum,
     top10Courses,
+    total,
   });
 });
 
