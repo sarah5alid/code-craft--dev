@@ -8,6 +8,7 @@ import {
   createPaymentIntent,
   createStripeCoupon,
 } from "../../payment-handler/Stripe.js";
+import sendEmailService from "../../services/send-email-service.js";
 import { couponValidation } from "../../utils/applyCoupon-validation.js";
 import { asyncHandler } from "../../utils/async-Handeller.js";
 import { checkCourseExists } from "../../utils/checkCourseExistence.js";
@@ -249,6 +250,7 @@ export const stripeWebhookLocal = asyncHandler(async (req, res, next) => {
   console.log(enrollments);
   const newEnroll = await Enrollment.insertMany(enrollments);
   console.log(newEnroll);
+
 
   console.log(conformPaymentIntentDetails);
   res.status(200).json({ message: "webhook received" });

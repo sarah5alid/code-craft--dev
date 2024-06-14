@@ -8,10 +8,11 @@ export const uploadCourseInfoSchema = {
     desc: joi.string().min(20).required(),
     level: joi
       .string()
-      .valid("All","Beginner", "Intermediate", "Advanced")
+      .valid("All", "Beginner", "Intermediate", "Advanced")
       .required(),
     prerequisites: joi.string().required(),
     basePrice: joi.number().required(),
+    courseImage: joi.string(),
   }),
   params: joi.object({
     categoryId: joi.string().custom(isValidObjectId).required(),

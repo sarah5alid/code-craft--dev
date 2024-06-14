@@ -4,39 +4,74 @@ import userModel from "../../../DB/models/user-model.js";
 import { APIFeatures } from "../../utils/api-features.js";
 import { asyncHandler } from "../../utils/async-Handeller.js";
 
+
 export const getCoursePreview = asyncHandler(async (req, res, next) => {
   const { courseId } = req.params;
   const userId = req.authUser._id;
-  const course = await Course.findOne({
-    _id: courseId,
-    isApproved: true,
-  }).populate([
-    { path: "vidoes", select: "title video.url order " },
+
+  const course = await Course.findById(courseId).populate([
+    { path: "vidoes", select: "title video.url order" },
     { path: "addedBy", select: "firstName lastName" },
     { path: "categoryId", select: "name" },
   ]);
-  let courseObject = course.toObject();
 
-  // Create a new array to store processed vidoes
-  if (courseObject.vidoes) {
-    courseObject.vidoes = courseObject.vidoes.map((video) => {
+  if (!course) {
+    return next(new Error("Course not found", { cause: 404 }));
+  }
+
+  // // Check the approval status and decide how to proceed
+  // if (
+  //   !course.isApproved &&
+  //   (!course.edits ||
+  //     Object.keys(course.edits).every((key) => course.edits[key] == null))
+  // ) {
+  //   // If the course is disapproved and has no edits, display the current course data
+  //   course = course.toObject();
+  // } else if (
+  //   !course.isApproved &&
+  //   course.edits &&
+  //   course.edits.isApproved === false
+  // ) {
+  //   // If the course is disapproved and has edits (disapproved), merge edits with the main course data
+  //   course = mergeEditsWithCourse(course);
+  //   console.log("saar");
+  // } else if (
+  //   course.isApproved &&
+  //   course.edits &&
+  //   course.edits.isApproved === true
+  // ) {
+  //   // If the course is approved and has edits (approved), merge edits with the main course data
+  //   await mergeEditsWithCourse(course);
+  // } else if (
+  //   course.isApproved &&
+  //   course.edits &&
+  //   course.edits.isApproved === false
+  // ) {
+  //   // If the course is approved and edits are disapproved,
+  //   // merge edits with the main course data
+  //   course = mergeEditsWithCourse(course);
+  // } else {
+  //   // If the course is approved but has no edits, display the current course data
+  //   course = course.toObject();
+  // }
+
+  // // Process the videos array
+  if (course.vidoes) {
+    course.vidoes = course.vidoes.map((video) => {
       if (video.order === 1) {
         return { title: video.title, url: video.video.url };
       }
       return { title: video.title };
     });
   }
-
-  if (!course) return next(new Error("course not found", { cause: 404 }));
-
   let isEnrolled = false;
   const enrolled = await Enrollment.findOne({ user: userId, course: courseId });
 
-  if (enrolled) isEnrolled = true;
+  if (enrolled) {
+    isEnrolled = true;
+  }
 
-  return res
-    .status(200)
-    .json({ success: true, course: courseObject, isEnrolled });
+  return res.status(200).json({ success: true, course, isEnrolled });
 });
 
 export const updateRecentlyViewedCourses = asyncHandler(
@@ -81,7 +116,7 @@ export const getRecentlyViewedCourses = async (req, res, next) => {
 };
 
 export const getAllCourses = asyncHandler(async (req, res, next) => {
-  const { categories, rating, level, price, isApproved, keyword, enrolledUsers, completedUsers } = req.query;
+  const { categories, rating, level, price, isApproved, keyword } = req.query;
 
   const filter = {};
 
@@ -100,8 +135,8 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
     };
   }
 
-  if (isApproved === 'true' || isApproved === 'false') {
-    filter.isApproved = isApproved === 'true';
+  if (isApproved === "true" || isApproved === "false") {
+    filter.isApproved = isApproved === "true";
   }
 
   if (typeof price === "string" && price.length) {
@@ -109,13 +144,6 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
     if (start >= 0 && end) filter.basePrice = { $gte: start, $lte: end };
     else if (start >= 0) filter.basePrice = { $gte: start, $lte: start + 1 };
   }
-
-  if (enrolledUsers === true || enrolledUsers === 'true') {
-    filter._id = { $in :  await Enrollment.find().distinct('course')};
-  } else if (completedUsers === true || completedUsers === 'true') {
-    filter._id = { $in :  await Enrollment.find({status: 'Completed'}).distinct('course')};
-  }
-
 
   const rate = Number(rating);
   if (Number.isNaN(rate) === false && rate > 0) {
@@ -125,7 +153,7 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
   if (typeof keyword === "string" && keyword.length) {
     filter.courseName = { $regex: decodeURIComponent(keyword), $options: "i" };
   }
-  const total = await Course.find(filter).count();
+
   const features = new APIFeatures(req.query, Course.find(filter));
 
   features.fields().sort().pagination();
@@ -137,7 +165,6 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
       coursesWithEnrollment: [],
       coursesNum: 0,
       top10Courses: [],
-      total: 0,
     });
   }
 
@@ -182,12 +209,7 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
     coursesWithEnrollment,
     coursesNum,
     top10Courses,
-    total,
   });
 });
-
-// get course preview for admin and instructor ==>
-
-  
 
 

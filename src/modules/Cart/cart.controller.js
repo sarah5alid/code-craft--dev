@@ -15,11 +15,7 @@ export const addToCart = asyncHandler(async (req, res, next) => {
   if (isEnrolled) {
     return res.status(409).json({
       success: true,
-<<<<<<< HEAD
-      message: "you already Enrolled",
-=======
       message: "You Already Enrolled",
->>>>>>> be6f283506ee834110da776aa724bc78ae502085
     });
   }
 
@@ -58,7 +54,10 @@ export const addToCart = asyncHandler(async (req, res, next) => {
   const checkCourse = await checkcourseIfExistsInCart(userCart, courseId);
 
   if (checkCourse) {
-    return next({ message: "Course already added to cart", cause: 400 });
+    return res.status(400).json({
+      success: true,
+      message: "Course Already added to cart",
+    });
   }
   const addedCourse = await pushNewcourse(userCart, course);
   if (!addedCourse) {
