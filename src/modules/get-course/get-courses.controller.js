@@ -29,7 +29,6 @@ export const getCoursePreview = asyncHandler(async (req, res, next) => {
   if (enrolled) {
     isEnrolled = true;
   }
-
   return res
     .status(200)
     .json({ success: true, course: courseObject, isEnrolled });

@@ -202,7 +202,7 @@ export const deleteCourse = asyncHandler(async (req, res, next) => {
 
   return res
     .status(200)
-    .json({ success: true, message: "Course deleted successfully !" });
+    .json({ success: true, message: "Course deleted Successfully !" });
 });
 
 //========================================get all courses for category============
