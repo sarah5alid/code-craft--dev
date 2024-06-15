@@ -4,60 +4,19 @@ import userModel from "../../../DB/models/user-model.js";
 import { APIFeatures } from "../../utils/api-features.js";
 import { asyncHandler } from "../../utils/async-Handeller.js";
 
-
 export const getCoursePreview = asyncHandler(async (req, res, next) => {
   const { courseId } = req.params;
   const userId = req.authUser._id;
 
   const course = await Course.findById(courseId).populate([
-    { path: "vidoes", select: "title video.url order" },
+    { path: "vidoes", select: " video.url title order" },
     { path: "addedBy", select: "firstName lastName" },
     { path: "categoryId", select: "name" },
   ]);
 
-  if (!course) {
-    return next(new Error("Course not found", { cause: 404 }));
-  }
-
-  // // Check the approval status and decide how to proceed
-  // if (
-  //   !course.isApproved &&
-  //   (!course.edits ||
-  //     Object.keys(course.edits).every((key) => course.edits[key] == null))
-  // ) {
-  //   // If the course is disapproved and has no edits, display the current course data
-  //   course = course.toObject();
-  // } else if (
-  //   !course.isApproved &&
-  //   course.edits &&
-  //   course.edits.isApproved === false
-  // ) {
-  //   // If the course is disapproved and has edits (disapproved), merge edits with the main course data
-  //   course = mergeEditsWithCourse(course);
-  //   console.log("saar");
-  // } else if (
-  //   course.isApproved &&
-  //   course.edits &&
-  //   course.edits.isApproved === true
-  // ) {
-  //   // If the course is approved and has edits (approved), merge edits with the main course data
-  //   await mergeEditsWithCourse(course);
-  // } else if (
-  //   course.isApproved &&
-  //   course.edits &&
-  //   course.edits.isApproved === false
-  // ) {
-  //   // If the course is approved and edits are disapproved,
-  //   // merge edits with the main course data
-  //   course = mergeEditsWithCourse(course);
-  // } else {
-  //   // If the course is approved but has no edits, display the current course data
-  //   course = course.toObject();
-  // }
-
-  // // Process the videos array
-  if (course.vidoes) {
-    course.vidoes = course.vidoes.map((video) => {
+  let courseObject = course.toObject();
+  if (courseObject.vidoes) {
+    courseObject.vidoes = courseObject.vidoes.map((video) => {
       if (video.order === 1) {
         return { title: video.title, url: video.video.url };
       }
@@ -70,8 +29,9 @@ export const getCoursePreview = asyncHandler(async (req, res, next) => {
   if (enrolled) {
     isEnrolled = true;
   }
-
-  return res.status(200).json({ success: true, course, isEnrolled });
+  return res
+    .status(200)
+    .json({ success: true, course: courseObject, isEnrolled });
 });
 
 export const updateRecentlyViewedCourses = asyncHandler(
@@ -211,5 +171,3 @@ export const getAllCourses = asyncHandler(async (req, res, next) => {
     top10Courses,
   });
 });
-
-
