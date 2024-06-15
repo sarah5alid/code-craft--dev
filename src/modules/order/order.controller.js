@@ -18,9 +18,7 @@ export const createOrder = asyncHandler(async (req, res, next) => {
   // Destructure the request body
   const { course, couponCode, paymentMethod } = req.body;
   const { _id: user } = req.authUser;
-
-
-
+  console.log(couponCode);
   // Coupon code check
   let coupon = null;
   if (couponCode) {
@@ -33,6 +31,7 @@ export const createOrder = asyncHandler(async (req, res, next) => {
     }
     coupon = isCouponValid;
   }
+  console.log("coupon", coupon);
 
   // Course check
   const courseAvailability = await checkCourseExists(course);
@@ -42,8 +41,6 @@ export const createOrder = asyncHandler(async (req, res, next) => {
       cause: courseAvailability.status,
     });
   }
-
-  
 
   // Create order items
   const orderItems = [
@@ -112,6 +109,7 @@ export const convertFromCartToOrder = asyncHandler(async (req, res, next) => {
       });
     coupon = isCouponValid;
   }
+  console.log(coupon);
 
   let orderItems = userCart.courses.map((cartItem) => {
     return {
@@ -250,7 +248,6 @@ export const stripeWebhookLocal = asyncHandler(async (req, res, next) => {
   console.log(enrollments);
   const newEnroll = await Enrollment.insertMany(enrollments);
   console.log(newEnroll);
-
 
   console.log(conformPaymentIntentDetails);
   res.status(200).json({ message: "webhook received" });

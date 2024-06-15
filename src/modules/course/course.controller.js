@@ -184,16 +184,24 @@ export const updateCourseInfo = asyncHandler(async (req, res, next) => {
 //=============================delete course===============
 
 export const deleteCourse = asyncHandler(async (req, res, next) => {
-  const course = req.checkCourse;
+  const { courseId } = req.params;
+  const course = await checkCourseExists(courseId);
+  if (course.status) {
+    return next({
+      message: course.message,
+      cause: course.cause,
+    });
+  }
+
   const deletedCourse = await Course.findByIdAndDelete(course._id);
 
-  if (!deletedCourse) 
+  if (!deletedCourse)
     return next(new Error("error while deleting"), { cause: 500 });
 
   await CourseContent.deleteMany({ course: course._id });
 
   return res
-    .status(204)
+    .status(200)
     .json({ success: true, message: "Course deleted successfully !" });
 });
 

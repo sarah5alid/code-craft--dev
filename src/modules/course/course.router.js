@@ -31,7 +31,7 @@ router.put(
 router.delete(
   "/deleteCourse/:courseId",
   authuntication(endPointsRoles.DELETE_COURSE),
-  checkCourseInstructor(),
+
   courseController.deleteCourse
 );
 
